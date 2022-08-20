@@ -25,6 +25,47 @@ $emergencies = Emergency::find_all();
 if (is_post()) {
 
 
+    $last_results = Emergency::find_last_number();
+
+
+    $em_code = "EM";
+    $date = date("ymd");
+    if (empty($last_results->emergency_no)) {
+        $n = 1;
+        $n = sprintf('%04u', $n);
+        $new_code = $em_code . $n;
+    } else {
+        $last_results->emergency_no++;
+        $new_code = $last_results->emergency_no;
+    }
+
+    $services = "Consultation";
+    $json = json_encode($services);
+
+    $gender = test_input($_POST['gender']);
+    $folder = test_input($_POST['folder']);
+
+
+    $emergency               = new Emergency();
+    $emergency->sync         = "off";
+    $emergency->folder       = $folder;
+    $emergency->emergency_no = $new_code;
+    $emergency->services     = $json;
+    $emergency->gender       = $gender;
+    $emergency->officer      = $user->full_name();
+    $emergency->status       = "";
+    $emergency->dept         = 'Records';
+    $emergency->date         = strftime("%Y-%m-%d %H:%M:%S", time());
+    if ($emergency->save()) {
+        $session->message("An emergency record has been created for this patient");
+        redirect_to('../consultant/emergency.php');
+    }
+
+    if ($errorMessage) {
+        $panelClass = 'panel-danger';
+        $panelHeader = '<div class="panel-heading"><h3 class="panel-title">Please correct the errors in the form<br></h3> class=
+                          "panel-title alert alert-danger">' . $errorMessage . '</h3> </div>';
+    }
 
 
 }

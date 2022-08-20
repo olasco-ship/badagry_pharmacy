@@ -331,6 +331,14 @@ function deleteBed(id){
 	}
 }
 
+function deleteDrug(id){
+	if(confirm("Are your sure to delete") == true){
+		// window.location = 'review_drug.php?id='+id;
+	}else{
+		return false;
+	}
+}
+
 
 function initSparkline() {
 	$(".sparkline").each(function() {

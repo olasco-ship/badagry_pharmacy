@@ -51,7 +51,7 @@ if (is_post()){
         if ($new_exam_cat->create()){
             $done = TRUE;
             $session->message("A new examination category has been created");
-            //redirect_to('#');
+            redirect_to('../consultant/examination_category.php');
         } else {
             $done = FALSE;
             $session->message("Couldn't create a new examination category");

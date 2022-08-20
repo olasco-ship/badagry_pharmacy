@@ -7,21 +7,8 @@ if (!$session->is_logged_in()) {
 
 $index = 1;
 
-//$user = User::find_by_id($_GET('id'));
-
-/*if (($user->role == 'Super Admin') OR ($user->department == 'Pharmacy')){
-    redirect_to(emr_lucid );
-}*/
-
-
-
-
-
-
 require('../layout/header.php');
 ?>
-
-
 
 <div id="main-content">
     <div class="container-fluid">
@@ -34,44 +21,33 @@ require('../layout/header.php');
                         <li class="breadcrumb-item active">Activity Reports</li>
                     </ul>
                 </div>
-              
             </div>
         </div>
 
         <div class="row clearfix">
-
             <div class="col-lg-12 col-md-12">
                 <div class="card">
-
                     <div class="body">
                         <a href="../pham/dispensary.php" style="font-size: large">&laquo; Back</a>
-
                         <h4> Activity Report (All Dispensed Reports) </h4>
-
                         <form class="form-inline" action="" method="post">
-
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon3">Start Date</span>
                                 </div>
                                 <input type="text" class="form-control" autocomplete="off" name="startDate" id="startDate" placeholder="Start Date" value="<?php echo $first_date; ?>" required>
                             </div>
-
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text" id="basic-addon3">End Date</span>
                                 </div>
                                 <input type="text" class="form-control" autocomplete="off" name="endDate" id="endDate" placeholder="End Date" value="<?php echo $last_date; ?>" required>
                             </div>
-
                             <div class="input-group mb-3">
                                 <button type="submit" class="btn btn-primary">Submit</button>
                                 <button type="button" name="search" onClick="location.href=location.href" class="btn btn-outline-warning">Refresh</button>
                             </div>
-
                         </form>
-
-
                         <?php
                         if (is_post()) {
                             $start_date = trim($_POST['startDate']);
@@ -114,7 +90,7 @@ require('../layout/header.php');
                                             <tbody>
                                                 <?php
                                                 if (is_post()) {
-                                                $drugService = DrugServices::find_dispensed_by_date();
+                                                $drugService = DrugServices::find_dispensed_by_date($startDate, $endDate);
                                                     foreach($drugService as $service) {
                                                         $request = DrugRequest::find_by_id($service->drug_request_id);
                                                         $patient = Patient::find_by_id($request->patient_id);
@@ -141,34 +117,12 @@ require('../layout/header.php');
 
                         <?php }  ?>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                     </div>
 
                 </div>
             </div>
         </div>
-
-
-
-
     </div>
 </div>
-
-
-
-
 <?php
 require('../layout/footer.php');

@@ -81,6 +81,7 @@ require('../layout/header.php');
                             <div class="col-lg-12 col-md-12">
                                 <div class="card">
 
+                                    <a href="../nursing/home.php" style="..."> >>Back </a>
                                     <div class="body">
                                         <ul class="nav nav-tabs-new">
                                             <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#ipd-sevices">IPD Services</a></li>

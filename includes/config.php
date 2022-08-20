@@ -7,7 +7,7 @@
  */
 
 defined('db_server') ? NULL : define('db_server', 'localhost');
-defined('db_user') ? NULL : define('db_user', 'root');
+defined('db_user') ? NULL : define('db_user', 'ola');
 defined('db_pass') ? NULL : define('db_pass', '');
 defined('db_name') ? NULL : define('db_name', 'emr');
 
@@ -16,7 +16,7 @@ defined('service_port') ? NULL : define('service_port', '5555');
 
 
 
-defined('emr_lucid') ? NULL : define('emr_lucid', '/emr');
+defined('emr_lucid') ? NULL : define('emr_lucid', '/badagry_pharmacy');
 
 date_default_timezone_set('Africa/Lagos');
 

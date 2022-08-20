@@ -236,11 +236,10 @@ function checkValidity($exp_date) {
     
     }
 
-    function getSystemNumber($first_name, $last_name) {
-        $first = substr($first_name, 0, 1);
-        $last  = substr($last_name, 0, 1);  
+    function getSystemNumber($first_name) {
+        $first = substr($first_name, 0, 1); 
         $rand_number = rand(1000, 9999);  
-        $folder_number = $first . $last .$rand_number;
+        $folder_number = $first . $rand_number;
         return $folder_number;
     }
 

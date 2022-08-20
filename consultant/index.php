@@ -76,7 +76,7 @@ require('../layout/header.php');
                                                 <a href="../consult/m_clinics.php">
                                                     <div class="body bg-primary text-light">
                                                         <h4><i class="icon-wallet"></i></h4>
-                                                        <span> My Clinics </span>
+                                                        <span> My Departments </span>
                                                     </div>
                                                 </a>
                                             </div>
@@ -105,7 +105,7 @@ require('../layout/header.php');
                                                 <a href="clinics.php">
                                                     <div class="body bg-dark text-light">
                                                         <h4><i class="icon-wallet"></i> </h4>
-                                                        <span> All Clinics</span>
+                                                        <span> All Departments</span>
                                                     </div>
                                                 </a>
                                             </div>

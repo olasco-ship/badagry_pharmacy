@@ -117,6 +117,7 @@ require('../layout/header.php');
                 <div class="col-md-12">
                     <div class="card patients-list">
 
+                        <a href="ipd-admin.php" style="..."> >>Back </a>
                         <div class="body">
 
                             <div class="col-lg-12 col-md-12">

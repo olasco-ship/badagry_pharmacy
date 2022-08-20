@@ -46,7 +46,7 @@ require('../layout/header.php');
                     <div class="card">
 
                         <div class="body">
-                            <a href="storage.php" style="font-size: large">&laquo; Back</a>
+                            <a href="dispensary.php" style="font-size: large">&laquo; Back</a>
                             <?php
                             if (($user->role == 'admin') || ($user->role == 'Super Admin')) {
                                 ?>

@@ -79,6 +79,7 @@ require('../layout/header.php');
                     <div class="body">
                         <div class="col-lg-12 col-md-12">
                             <div class="card">
+                                <a href="../pham/storage.php" style="..."> >>Back </a>
                                 <div class="body">
                                     <ul class="nav nav-tabs-new">
                                         <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Home-new">Type Of Drugs</a></li>

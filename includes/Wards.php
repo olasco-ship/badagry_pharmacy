@@ -15,6 +15,11 @@ class Wards extends DatabaseObject
     public $ward_status;
     public $ward_assign_status;
 
+    public static function find_by_name($name){
+
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE ward_number = '$name' ");
+    }
+
     public function uniqueName($name)
     {
         $sql = "SELECT * FROM " . static::$table_name . " WHERE ward_number= '{$name}' LIMIT 1";

@@ -46,8 +46,28 @@ class Referrals extends DatabaseObject
         return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE status = 'OPEN' ORDER BY date ASC ");
     }
 
+    public static function find_folder_open_referrals($patient_id){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE patient_id = {$patient_id} AND status = 'OPEN' ORDER BY date ASC ");
+    }
+
+    public static function count_by_confirmation(){
+        global $database;
+        $sql = "SELECT COUNT(*) FROM " .static::$table_name . " WHERE status = 'CONFIRMATION'  " ;
+        $result_set = $database->query($sql);
+        $row = $database->fetch_array($result_set);
+        return array_shift($row);
+    }
+
+    public static function find_by_confirmation(){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE status = 'CONFIRMATION' ORDER BY date ASC ");
+    }
+
     public static function find_by_cleared_referrals(){
         return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE status = 'PAID' ORDER BY date DESC ");
+    }
+
+    public static function find_folder_cleared_referrals($patient_id){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE patient_id = '$patient_id' status = 'PAID' ORDER BY date DESC ");
     }
 
     public static function find_patient_open($patient_id){

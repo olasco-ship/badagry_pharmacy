@@ -9,13 +9,6 @@
 
 require_once "../includes/initialize.php";
 
-
-
-
-
-
-$waiting_list = WaitingList::find_by_id($_GET['id']);
-$patient      = Patient::find_by_id($waiting_list->patient_id);
 $user         = User::find_by_id($session->user_id);
 
 
@@ -25,13 +18,15 @@ $user         = User::find_by_id($session->user_id);
 
 if (is_post()) {
 
-    $waiting_list = WaitingList::find_by_id($_GET['id']);
-    $patient = Patient::find_by_id($waiting_list->patient_id);
-        
+    $patient_name        = $_POST['patient_name'];
+    $folder_number       = $_POST['folder_number'];
+    $station_id          = $_POST['station_id'];
+    $physician           = $_POST['physician'];
     
     $drug        = $_POST['drug'];
     $dosage      = $_POST['dosage'];
     $duration    = $_POST['duration'];
+    $comment     = $_POST['doc_com'];
 
     $new_array = array();
     for ($x = 0; $x < count($drug); $x++) {
@@ -40,13 +35,31 @@ if (is_post()) {
         );
     }
 
+    $system_number = getSystemNumber($first_name, $last_name);
+
+    $patient                   = new Patient();
+    $patient->sync             = "off";
+    $patient->folder_number    = $folder_number;
+    $patient->system_number    = $system_number;
+    $patient->first_name       = $patient_name;
+    $patient->date_registered  = strftime("%Y-%m-%d %H:%M:%S", time());
+    if ($patient->save()){
+        $wait_list                = new WaitingList();
+        $wait_list->sync          = "off";
+        $wait_list->patient_id    = $patient->id;
+        $wait_list->room_id       = 0;
+        $wait_list->officer       = $user->full_name();
+        $wait_list->dr_seen       = "";
+        $wait_list->vitals        = '';
+        $wait_list->status        = 'nurse';
+        $wait_list->date          = strftime("%Y-%m-%d %H:%M:%S", time());
+        $wait_list->save();
+    }
+
 
         $drugRequest                  = new DrugRequest();
         $drugRequest->sync            = "off";
-        $drugRequest->waiting_list_id = $waiting_list->id;
-        $drugRequest->sub_clinic_id   = $waiting_list->sub_clinic_id;
-        $drugRequest->clinic_id       = $waiting_list->clinic_id;
-        $drugRequest->ref_adm_id      = 0;
+        $drugRequest->waiting_list_id = $wait_list->id;
         $drugRequest->patient_id      = $patient->id;
         $drugRequest->bill_id         = 0;
         $drugRequest->consultant      = $user->full_name();
@@ -54,7 +67,7 @@ if (is_post()) {
         $drugRequest->not_available   = count($new_array);
         $drugRequest->doc_com         = $_POST['doc_com'];
         $drugRequest->pharm_com       = "";
-        $drugRequest->status          = "OPEN";
+        $drugRequest->status          = "awaiting_costing";
         $drugRequest->receipt         = "";
         $drugRequest->date            = strftime("%Y-%m-%d %H:%M:%S", time());
 
@@ -73,13 +86,13 @@ if (is_post()) {
                 $eachDrug->duration        = $item['duration'];
                 $eachDrug->consultant      = $user->full_name();
                 $eachDrug->pharmacy        = "";
-                $eachDrug->status          = "REQUEST";
+                $eachDrug->status          = "OPEN";
                 $eachDrug->date            = strftime("%Y-%m-%d %H:%M:%S", time());
                 $eachDrug->save();
             }
             PatientBill::clear_all_bill();
-            $session->message("Prescription has been done for this patient");
-            redirect_to("dashboard.php?id=$waiting_list->id");
+//            $session->message("Prescription has been done for this patient");
+            redirect_to("print_bill.php?id=$wait_list->id");
         }
 
    }
@@ -97,9 +110,7 @@ require '../layout/header.php';
         <div class="block-header">
             <div class="row">
                 <div class="col-lg-6 col-md-8 col-sm-12">
-                    <h2><a href="javascript:void(0);" class="btn btn-xs btn-link btn-toggle-fullwidth"><i class="fa fa-arrow-left"></i></a>
-                    <?php echo "Medical Dashboard - " . $patient->title . " " . $patient->full_name(); ?>
-                    </h2>
+
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="index.php"><i class="icon-home"></i></a></li>
                         <li class="breadcrumb-item">Treatment</li>
@@ -121,15 +132,50 @@ require '../layout/header.php';
                         <div class="row clearfix">
                             <div class="col-lg-12 col-md-12">
 
-                                <a href="dashboard.php?id=<?php echo $waiting_list->id ?>">Back</a>
+                                <a href="dashboard.php">Back</a>
                                 <h3>Prescription Sheet</h3>
 
                                 <div>
 
+                                    <form action="" method="post">
+
                                     <table class="table table-bordered table-condensed table-hover">
-
-
                                         <thead>
+                                        <tr>
+                                            <th>Patient Name</th>
+                                            <td colspan="3">
+                                                <input type='text' class='form-control' name='patient_name' value='<?php echo $patient_name ?>'>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Folder Number</th>
+                                            <td colspan="3">
+                                                <input type='text' class='form-control' name='folder_number' value='<?php echo $folder_number ?>'>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Physician</th>
+                                            <td colspan="3">
+                                                <input type='text' class='form-control' name='physician' value='<?php echo $physician ?>'>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th> Dispensary </th>
+                                            <td colspan="3">
+                                                <?php $station = PharmacyStation::find_all(); ?>
+                                                <select class="form-control" id="station_id" name="station_id" required>
+                                                    <option value="">--Select Dispensary--</option>
+                                                    <?php
+                                                    foreach ($station as $s) { ?>
+                                                        <option value="<?php echo $s->id; ?>"><?php echo $s->name; ?>
+                                                        </option>
+                                                    <?php } ?>
+                                                </select>
+                                            </td>
+                                        </tr>
                                             <tr>
                                                 <th>Drug(s)</th>
                                                 <th>Dosage</th>
@@ -138,7 +184,7 @@ require '../layout/header.php';
                                         </thead>
 
                                         <tbody>
-                                            <form action="" method="post">
+
                                                 <?php
                                                 $items = PatientBill::get_bill();
                                                 foreach ($items as $item) {   ?>
@@ -170,9 +216,12 @@ require '../layout/header.php';
                                                 <tr>
                                                     <td colspan="4"><button type="submit" class="btn btn-success"> Save Prescription </button></td>
                                                 </tr>
-                                            </form>
+
                                         </tbody>
+
                                     </table>
+
+                                    </form>
 
                                 </div>
 

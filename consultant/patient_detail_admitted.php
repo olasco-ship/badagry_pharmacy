@@ -13,6 +13,7 @@ if (!$session->is_logged_in()) {
     redirect_to(emr_lucid . "/index.php");
 }
 
+$admDetail = ReferAdmission::find_by_id($_GET['id']);
 
 if (!empty($_GET['ward_id_edits'])) {
 
@@ -82,13 +83,13 @@ if (!empty($_GET['room_no_id'])) {
 //$ref             = ReferAdmission::find_by_patient($_GET['id']);
 $ref          = ReferAdmission::find_by_id($_GET['id']);
 // $waiting_list = WaitingList::find_by_id($_GET['id']);
+$wardData = Wards::find_by_id($ref->ward_no);
 $cancelAdmission = new CancleAdmission();
 
 //echo $ref->patient_id;  echo gettype($ref->patient_id);
 $ref->patient_id = (int) $ref->patient_id;
 $x = (int) $ref->patient_id;
 //echo gettype($x); exit;
-
 
 $cancelAdmissionDetail = $cancelAdmission->find_by_patient($x);
 //$cancelAdmissionDetail = $cancelAdmission->find_by_pat_id($waiting_list->patient_id);
@@ -112,7 +113,7 @@ $refAdmissionDetail = ReferAdmission::find_by_bill_id_first($x);
 $allRefData = ReferAdmission::find_all();
 //$waitingConsultation = WaitingList::find_all_waiting_consultation_count($_GET['id']);
 //$countWaitPatient = count($waitingConsultation) + 1;
-//$countWaitPatient = count($allRefData) + 1;
+$countWaitPatient = count($allRefData) + 1;
 $refAdmissionDetail = $refAdmissionDetail[0];
 $singleReferData = ReferAdmission::find_by_bill_id_first($x);
 //$singleReferData = ReferAdmission::find_by_bill_id_first($ref->patient_id);
@@ -241,7 +242,7 @@ if (is_post()) {
         // $bedL = new BedsList();
         // $bedListDa = $bedL->find_by_ward_id($_POST['ward_no'], $_POST['bed_no'], $_POST['patient_id']);
         // $bedL->occupied_bed_status = '1';
-        // $bedL->updateReferId("where id=".$bedListDa->id);  
+        // $bedL->updateReferId("where id=".$bedListDa->id);
         $bedL = new BedsList();
         $bedListDa = $bedL->find_by_ward_id($_POST['ward_no'], $_POST['bed_no'], $_POST['patient_id']);
         $oldBedAllot = $bedL->find_by_bed_allot_status_change($_POST['patient_id']);
@@ -332,9 +333,24 @@ if (is_post()) {
             $lastEncounterId = $encreate['0']->id;
         }
 
+        $waList                  = new WaitingList();
+        $waList->sync            = "Off";
+        $waList->patient_id      = $patient->id;
+        $waList->wait_status     = 0;
+        $waList->clinic_id       = "";
+        $waList->sub_clinic_id   = "";
+        $waList->room_id         = 0;
+        $waList->officer         = $user->full_name();
+        $waList->dr_seen         = $user->full_name();
+        $waList->vitals          = "CLEARED";
+        $waList->status          = "consultation done";
+        $waList->icd_status      = "";
+        $waList->date            = strftime("%Y-%m-%d %H:%M:%S", time());
+        $waList->create();
+
         $testRequest                  = new TestRequest();
         $testRequest->sync            = "off";
-        $testRequest->waiting_list_id = $waiting_list->id;
+        $testRequest->waiting_list_id = $waList->id;
         $testRequest->ref_adm_id      = $refAdmissionDetail->id;
         $testRequest->ward_id         = $refAdmissionDetail->ward_no;
         $testRequest->patient_id      = $patient->id;
@@ -372,7 +388,7 @@ if (is_post()) {
 
             $session->message("Lab Investigations has been requested for this patient");
             redirect_to("patient_detail_admitted.php?id=$ref->id");
-           // redirect_to("patient_detail.php?id=$ref->id");
+            // redirect_to("patient_detail.php?id=$ref->id");
 
         }
     }
@@ -404,9 +420,24 @@ if (is_post()) {
         $items = ScanBill::get_bill();
         $item = $items[0];
 
+        $waiList                  = new WaitingList();
+        $waiList->sync            = "Off";
+        $waiList->patient_id      = $patient->id;
+        $waiList->wait_status     = 0;
+        $waiList->clinic_id       = "";
+        $waiList->sub_clinic_id   = "";
+        $waiList->room_id         = 0;
+        $waiList->officer         = $user->full_name();
+        $waiList->dr_seen         = $user->full_name();
+        $waiList->vitals          = "CLEARED";
+        $waiList->status          = "consultation done";
+        $waiList->icd_status      = "";
+        $waiList->date            = strftime("%Y-%m-%d %H:%M:%S", time());
+        $waiList->create();
+
         $scanRequest                  = new ScanRequest();
         $scanRequest->sync            = "off";
-        $scanRequest->waiting_list_id = $waiting_list->id;
+        $scanRequest->waiting_list_id = $waiList->id;
         $scanRequest->ref_adm_id      = $refAdmissionDetail->id;
         $scanRequest->ward_id         = $refAdmissionDetail->ward_no;
         $scanRequest->encounter_id    = $lastEncounterId->id;
@@ -442,7 +473,7 @@ if (is_post()) {
             }
             $session->message("Investigations has been requested for this patient");
             redirect_to("patient_detail_admitted.php?id=$ref->id");
-          //  redirect_to("patient_detail.php?id=$ref->id");
+            //  redirect_to("patient_detail.php?id=$ref->id");
         }
     }
 
@@ -479,10 +510,24 @@ if (is_post()) {
         $items = PatientBill::get_bill();
         $item = $items[0];
 
+        $List                  = new WaitingList();
+        $List->sync            = "Off";
+        $List->patient_id      = $patient->id;
+        $List->wait_status     = 0;
+        $List->clinic_id       = "";
+        $List->sub_clinic_id   = "";
+        $List->room_id         = 0;
+        $List->officer         = $user->full_name();
+        $List->dr_seen         = $user->full_name();
+        $List->vitals          = "CLEARED";
+        $List->status          = "consultation done";
+        $List->icd_status      = "";
+        $List->date            = strftime("%Y-%m-%d %H:%M:%S", time());
+        $List->create();
 
         $drugRequest                  = new DrugRequest();
         $drugRequest->sync            = "off";
-        $drugRequest->waiting_list_id = $waiting_list->id;
+        $drugRequest->waiting_list_id = $List->id;
         $drugRequest->ward_id         = $refAdmissionDetail->ward_no;
         $drugRequest->patient_id      = $patient->id;
         $drugRequest->bill_id         = 0;
@@ -519,7 +564,7 @@ if (is_post()) {
             }
             $session->message("Prescription has been done for this patient");
             redirect_to("patient_detail_admitted.php?id=$ref->id");
-           // redirect_to("patient_detail.php?id=$ref->id");
+            // redirect_to("patient_detail.php?id=$ref->id");
         }
     }
 
@@ -542,7 +587,7 @@ if (is_post()) {
         $appointment->save();
         $session->message("Appointment has been booked for this patient");
         redirect_to("patient_detail_admitted.php?id=$ref->id");
-      //  redirect_to("patient_detail.php?id=$ref->id");
+        //  redirect_to("patient_detail.php?id=$ref->id");
     }
 
     if (isset($_POST['refer_patient'])) {
@@ -570,12 +615,230 @@ if (is_post()) {
         //   redirect_to("dashboard.php?id=$patient->id");
     }
 
+    if (isset($_POST['transfer_patient'])) {
+
+        $transferTo             = $_POST['transfer_to'];
+        $transferNote           = $_POST['transfer_note'];
+
+        $wName                  = Wards::find_by_id($ref->ward_no);
+
+        $transfer                       = new PatientTransfer();
+        $transfer->patient_id           = $ref->patient_id;
+        $transfer->in_patient_id        = $ref->in_patient_id;
+        $transfer->transfer_purpose     = $transferTo;
+        $transfer->transfer_from        = $wName->ward_number;
+        $transfer->transfer_to          = $transferTo;
+        $transfer->date                 = strftime('%Y-%m-%d %H:%M:%S', time());
+        $transfer->create();
+
+        $depts                   = Clinic::find_by_name($transferTo);
+        foreach ($depts as $dept){
+        }
+        $subDept                = SubClinic::find_by_name($transferTo);
+        foreach ($subDept as $sub){
+        }
+
+        if ($transferTo == "SURGERY"){
+
+            $wList                  = new WaitingList();
+            $wList->sync            = "Off";
+            $wList->patient_id      = $patient->id;
+            $wList->wait_status     = 0;
+            $wList->clinic_id       = $dept->id;
+            $wList->sub_clinic_id   = $sub->id;
+            $wList->room_id         = 0;
+            $wList->officer         = $user->full_name();
+            $wList->dr_seen         = "";
+            $wList->vitals          = "CLEARED";
+            $wList->status          = "consultant";
+            $wList->icd_status          = "";
+            $wList->date            = strftime("%Y-%m-%d %H:%M:%S", time());
+            if ($wList->create()){
+                $ref->discharge_doct  = 1;
+                $ref->save();
+            }
+        }
+
+        if ($transferTo == "ICU"){
+            $ref->discharge_doct = 1;
+            $ref->save();
+
+            $name = "ICU";
+            $wardNumber = Wards::find_by_name($name);
+            foreach ($wardNumber as $wNo){
+//                $loc = Locations::find_by_id($wNo->location_id);
+            }
+
+            $referAdmission = new ReferAdmission();
+
+            $referAdmission->sync       = "off";
+            $referAdmission->patient_id = $ref->patient_id;
+            $referAdmission->Consultantdr = $user->id;
+            $referAdmission->in_patient_id = $ref->in_patient_id;
+            $referAdmission->adm_date = strftime('%Y-%m-%d %H:%M:%S', time());
+            $referAdmission->location = $wNo->location_id;
+            $referAdmission->ward_no = $wNo->id;
+            $referAdmission->room_no = "";
+            $referAdmission->bed_no = "";
+            $referAdmission->m_s = "";
+            $referAdmission->adm_purpose = "";
+            $referAdmission->ipd_service = "";
+            $referAdmission->payment_type = "";
+            $referAdmission->add_wall_balance = "";
+            $referAdmission->wall_balance = 0;
+            $referAdmission->remark = $transferNote;
+            $referAdmission->pat_category = "";
+            $referAdmission->adm_type       = "";
+            $referAdmission->created = date("Y-m-d h:i:s");
+            if ($_SESSION['department'] == "Nursing") {
+                $referAdmission->nurse_id = $_SESSION['user_id'];
+            } else {
+                $referAdmission->nurse_id = 0;
+            }
+            //pre_d($referAdmission);die;
+            $a = $referAdmission->save();
+        }
+
+        if ($transferTo == "Ward"){
+            $ref->discharge_doct = 1;
+            $ref->save();
+
+            $fromWard           = PatientTransfer::find_by_in_patient_id($ref->in_patient_id);
+            foreach ($fromWard as $from){
+                $pWard          = Wards::find_by_name($from->transferFrom);
+            }
+            foreach ($pWard as $patientWard){
+            }
+//            $wLocation      = Locations::find_by_id($patientWard->location_id);
+
+
+            $referAdmission = new ReferAdmission();
+
+            $referAdmission->sync       = "off";
+            $referAdmission->patient_id = $ref->patient_id;
+            $referAdmission->Consultantdr = $user->id;
+            $referAdmission->in_patient_id = $ref->in_patient_id;
+            $referAdmission->adm_date = strftime('%Y-%m-%d %H:%M:%S', time());
+            $referAdmission->location = $patientWard->location_id;
+            $referAdmission->ward_no = $patientWard->id;
+            $referAdmission->room_no = "";
+            $referAdmission->bed_no = "";
+            $referAdmission->m_s = "";
+            $referAdmission->adm_purpose = "";
+            $referAdmission->ipd_service = "";
+            $referAdmission->payment_type = "";
+            $referAdmission->add_wall_balance = "";
+            $referAdmission->wall_balance = "";
+            $referAdmission->remark = $transferNote;
+            $referAdmission->pat_category = "";
+            $referAdmission->adm_type       = "";
+            $referAdmission->created = date("Y-m-d h:i:s");
+            if ($_SESSION['department'] == "Nursing") {
+                $referAdmission->nurse_id = $_SESSION['user_id'];
+            } else {
+                $referAdmission->nurse_id = 0;
+            }
+            $a = $referAdmission->save();
+        }
+
+        if ($transferTo == "MORGUE"){
+            $ref->discharge_doct = 1;
+            $ref->save();
+        }
+
+        $session->message("Patient has been transferred to " . $transferTo);
+        redirect_to("patient_detail_admitted.php?id=$ref->id");
+    }
+
     if (isset($_POST['save_note'])) {
+
+        $wl = new WaitingList();
+        $wl->patient_id = $patient->id;
+        $wl->vitals = "CLEARED";
+        $wl->status = "consultation done";
+        $wl->dr_seen = $user->full_name();
+        $wl->icd_status = "not done";
+        $wl->date = strftime("%Y-%m-%d %H:%M:%S", time());
+        $wl->create();
+
+        $spo2                       = $_POST['spo2'];
+        $gcs                        = $_POST['gcs'];
+        $pcv                        = $_POST['pcv'];
+        $bloodTrans                 = $_POST['bloodTrans'];
+        $vasopro                    = $_POST['vasopro'];
+        $anticoagulant              = $_POST['anticoagulant'];
+        $comorbidity                = $_POST['comorbidity'];
+        $indIcuAdm                  = $_POST['indIcuAdm'];
+        $managing_team              = $_POST['managing_team'];
+        $ventilator                 = $_POST['ventilator'];
+        $vent_mode                  = $_POST['vent_mode'];
+        $ventMode_others            = $_POST['ventMode_others'];
+        $airways                    = $_POST['airways'];
+        $duration_vent              = $_POST['duration_vent'];
+        $critical_incident          = $_POST['critical_incident'];
+        $vent_days                  = $_POST['vent_days'];
+        $discharge_date             = $_POST['discharge_date'];
+        $remark                     = $_POST['spec_remark'];
+        $outcome                    = $_POST['outcome'];
+
+        $pre_hb         = $_POST['pre_hb'];
+        $ope_date       = $_POST['ope_date'];
+        $ope_gn         = $_POST['ope_gn'];
+        $ope_bg         = $_POST['ope_bg'];
+        $lab_refNo      = $_POST['lab_refNo'];
+        $ope_bc         = $_POST['ope_bc'];
+        $xray_refNo     = $_POST['xray_refNo'];
+        $allergy        = $_POST['allergy'];
+        $prev_drugHistory = $_POST['prev_drugHistory'];
+        $operationPro   = $_POST['operationPro'];
+        $ope_indication = $_POST['ope_indication'];
+        $emergencyElective = $_POST['emergencyElective'];
+        $pdoo           = $_POST['pdoo'];
+        $consentGiven   = $_POST['consentGiven'];
+        $hos            = $_POST['hos'];
+
+
+        $icu                        = new StdClass();
+        $icu->SPO2                  = $spo2;
+        $icu->GlasgowComaScore      = $gcs;
+        $icu->PCV                   = $pcv;
+        $icu->BloodTransfussion     = $bloodTrans;
+        $icu->Vasopro               = $vasopro;
+        $icu->Anticoagulant         = $anticoagulant;
+        $icu->Comorbidity           = $comorbidity;
+        $icu->IcuIndication         = $indIcuAdm;
+        $icu->managing_team         = $managing_team;
+        $icu->ventilator            = $ventilator;
+        $icu->ventilation_mode      = $vent_mode;
+        $icu->airways               = $airways;
+        $icu->ventilationDuration   = $duration_vent;
+        $icu->criticalIncident      = $critical_incident;
+        $icu->daysOnVentilator      = $vent_days;
+        $icu->dischargeDate         = $discharge_date;
+        $icu->remark                = $remark;
+        $icu->outcome               = $outcome;
+
+        $surgery                            = new StdClass();
+        $surgery->preoperative_hb           = $pre_hb;
+        $surgery->preoperative_date         = $ope_date;
+        $surgery->Genotype                  = $ope_gn;
+        $surgery->BloodGroup                = $ope_bg;
+        $surgery->LabRefNo                  = $lab_refNo;
+        $surgery->XrayRefNo                 = $xray_refNo;
+        $surgery->bloodCrossmatched         = $ope_bc;
+        $surgery->Allergy                   = $allergy;
+        $surgery->previousDrugHistory       = $prev_drugHistory;
+        $surgery->operationProposed         = $operationPro;
+        $surgery->IndicationForOperation    = $ope_indication;
+        $surgery->EmergencyElective         = $emergencyElective;
+        $surgery->ProposedDateOfOperation   = $pdoo;
+        $surgery->consentGiven              = $consentGiven;
+        $surgery->houseOfficer              = $hos;
 
         $caseNote                  = new CaseNote();
         $caseNote->sync            = "off";
         $caseNote->patient_id      = $patient->id;
-        $caseNote->waiting_list_id = $waiting_list->id;
+        $caseNote->waiting_list_id = $wl->id;
         $caseNote->ref_adm_id      = $refAdmissionDetail->id;
         $caseNote->sub_clinic_id   = 0;
         $caseNote->complains       = json_encode($_POST['complain']);
@@ -584,8 +847,14 @@ if (is_post()) {
         $caseNote->sys_review      = $_POST['system_review'];
         $caseNote->examination     = json_encode($_POST['general']);
         $caseNote->diagnosis       = $_POST['diagnosis'];
-        $caseNote->differentials   = $_POST['differentials'];
+        $caseNote->differentials   = json_encode($_POST['differentials']);
         $caseNote->note            = $_POST['examNote'];
+        $ward = "ICU";
+        $wardName = Wards::find_by_id($admDetail->ward_no);
+        if ($wardName->ward_number == $ward){
+            $caseNote->icu             = json_encode($icu);
+        }
+        $caseNote->surgery          = json_encode($surgery);
         $caseNote->consultant      = $user->full_name();
         $caseNote->status          = "OPEN";
         $caseNote->date            = strftime("%Y-%m-%d %H:%M:%S", time());
@@ -774,6 +1043,78 @@ if (is_post()) {
 
 }
 
+date_default_timezone_set('Asia/Tokyo');
+
+// Get prev & next month
+if (isset($_GET['ym'])) {
+    $ym = $_GET['ym'];
+} else {
+    // This month
+    $ym = date('Y-m');
+}
+
+// Check format
+$timestamp = strtotime($ym . '-01');
+if ($timestamp === false) {
+    $ym = date('Y-m');
+    $timestamp = strtotime($ym . '-01');
+}
+
+// Today
+$today = date('Y-m-j', time());
+
+// For H3 title
+$html_title = date('Y / m', $timestamp);
+
+// Create prev & next month link     mktime(hour,minute,second,month,day,year)
+$prev = date('Y-m', mktime(0, 0, 0, date('m', $timestamp)-1, 1, date('Y', $timestamp)));
+$next = date('Y-m', mktime(0, 0, 0, date('m', $timestamp)+1, 1, date('Y', $timestamp)));
+// You can also use strtotime!
+// $prev = date('Y-m', strtotime('-1 month', $timestamp));
+// $next = date('Y-m', strtotime('+1 month', $timestamp));
+
+// Number of days in the month
+$day_count = date('t', $timestamp);
+
+// 0:Sun 1:Mon 2:Tue ...
+$str = date('w', mktime(0, 0, 0, date('m', $timestamp), 1, date('Y', $timestamp)));
+//$str = date('w', $timestamp);
+
+
+// Create Calendar!!
+$weeks = array();
+$week = '';
+
+// Add empty cell
+$week .= str_repeat('<td></td>', $str);
+
+for ( $day = 1; $day <= $day_count; $day++, $str++) {
+
+    $date = $ym . '-' . $day;
+
+    if ($today == $date) {
+        $week .= '<td class="today">' . $day;
+    } else {
+        $week .= '<td>' . $day;
+    }
+    $week .= '</td>';
+
+    // End of the week OR End of the month
+    if ($str % 7 == 6 || $day == $day_count) {
+
+        if ($day == $day_count) {
+            // Add empty cell
+            $week .= str_repeat('<td></td>', 6 - ($str % 7));
+        }
+
+        $weeks[] = '<tr>' . $week . '</tr>';
+
+        // Prepare for new week
+        $week = '';
+    }
+
+}
+
 PatientBill::clear_all_bill();
 ScanBill::clear_all_bill();
 TestBill::clear_all_bill();
@@ -812,1349 +1153,1629 @@ require '../layout/header.php';
 
 
 
-                        <div class="col-lg-12 col-md-12">
-                            <div class="card">
+            <div class="col-lg-12 col-md-12">
+                <div class="card">
+                    <div class="body">
+
+                        <?php
+                        if (!empty($message)) { ?>
+                            <div id="success" class="alert alert-success alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <?php echo output_message($message); ?>
+                            </div>
+                        <?php }
+                        ?>
+
+
+
+                        <div class="tab-pane show active" id="Admission">
+                            <div class="tab-pane" id="Admission_sub">
+
+
                                 <div class="body">
 
-                                    <?php
-                                    if (!empty($message)) { ?>
-                                        <div id="success" class="alert alert-success alert-dismissible" role="alert">
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                            <?php echo output_message($message); ?>
-                                        </div>
-                                    <?php }
-                                    ?>
+
+                                    <ul class="nav nav-tabs-new2">
+                                        <li class="nav-item"><a class="nav-link nav-link-goto active show" data-toggle="tab" href="#Admit-pat"> Patient Details</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SOAP">SOAP</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#ClinicalHistory">Clinical History</a></li>
+                                        <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#LaboratorySecond">Laboratory</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#RadiologySecond">Radiology/Ultrasound</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#DrugSecond">Drug Prescription</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Appointment">Book Appointment</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Transfer">Transfer </a></li>
+                                        <!--<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Refer">Refer </a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SymptomChecker">Symptom Checker</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#DischargePatient">Discharge Patient</a></li>-->
+                                        <!--
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#update-pat"> Modify Patient info</a></li>
+                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#cancle-admission"> Cancel Admission</a></li>
+                                        -->
+
+                                        <!--    <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#VitalHistory"> Vital History</a></li>
+                                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#LabHistoryTwo">Clinical History Two</a></li>
+                                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SOAPHistory">Medical History</a></li>-->
 
 
+                                    </ul>
+                                    <div class="tab-content">
 
-                                    <div class="tab-pane show active" id="Admission">
-                                        <div class="tab-pane" id="Admission_sub">
+                                        <div class="tab-pane show active" id="Admit-pat">
+
+                                            <form id="" method="post" action="">
+                                                <input type="hidden" name="nurse_id" value="<?php echo isset($refAdmissionDetail->nurse_id) ? $refAdmissionDetail->nurse_id : NULL ?>" />
+
+                                                <div class="titleData">
+                                                    <div class="row clearfix">
+
+                                                        <div class="col-sm-4">
+                                                            <?php
+                                                            $mr = "";
+                                                            $mrs = "";
+                                                            $master = "";
+                                                            $miss = "";
+                                                            $titl = "";
+                                                            if ($patient->title == "Mr") {
+                                                                $mr = "checked='checked'";
+                                                                $mrs = "";
+                                                                $master = "";
+                                                                $miss = "";
+                                                                $titl = "";
+                                                            } else if ($patient->title == "Mrs") {
+                                                                $mrs = "checked='checked'";
+                                                            } else if ($patient->title == "Master") {
+                                                                $master = "checked='checked'";
+                                                            } else if ($patient->title == "Miss") {
+                                                                $miss = "checked='checked'";
+                                                            }
+                                                            ?>
+                                                            <div class="form-group">
+                                                                <label> Title </label>
+                                                                <br>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="title" value="Mr" required="" data-parsley-errors-container="#error-radio" <?= $mr ?> disabled>
+                                                                    <span><i></i>Mr</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="title" value="Mrs" <?= $mrs ?> disabled>
+                                                                    <span><i></i>Mrs</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="title" value="Master" <?= $master ?> disabled>
+                                                                    <span><i></i>Master</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="title" value="Miss" <?= $miss ?> disabled>
+                                                                    <span><i></i>Miss</span>
+                                                                </label>
+                                                                <p id="error-radio"></p>
+                                                            </div>
 
 
-                                            <div class="body">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>First Name</label>
+                                                                <input type="text" class="form-control" name="first_name" id="first_name" value="<?= $patient->first_name ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Last Name</label>
+                                                                <input type="text" class="form-control" name="last_name" id="last_name" value="<?= $patient->last_name ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row clearfix">
+                                                        <?php
+                                                        $inPat = "";
+                                                        if (!empty($refAdmissionDetail->in_patient_id)) {
+                                                            $inPat = $refAdmissionDetail->in_patient_id;
+                                                        } else {
+                                                            $inPat = $numPrint;
+                                                        }
+                                                        ?>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>In-patient id</label>
+                                                                <input type="text" class="form-control" name="in_patient_id" value="<?= $inPat ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Hospital Number</label>
+                                                                <input type="text" class="form-control" name="hospital_number" value="<?= $patient->folder_number ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
 
 
-                                                <ul class="nav nav-tabs-new2">
-                                                    <li class="nav-item"><a class="nav-link nav-link-goto active show" data-toggle="tab" href="#Admit-pat"> Patient Details</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SOAP">SOAP</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#ClinicalHistory">Clinical History</a></li>
-                                                    <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#LaboratorySecond">Laboratory</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#RadiologySecond">Radiology/Ultrasound</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#DrugSecond">Drug Prescription</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Appointment">Book Appointment</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Refer">Refer </a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SymptomChecker">Symptom Checker</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#DischargePatient">Discharge Patient</a></li>
-                                                    <!--
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#update-pat"> Modify Patient info</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#cancle-admission"> Cancel Admission</a></li>
-                                                    -->
-
-                                                <!--    <li class="nav-item"><a class="nav-link " data-toggle="tab" href="#VitalHistory"> Vital History</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#LabHistoryTwo">Clinical History Two</a></li>
-                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#SOAPHistory">Medical History</a></li>-->
-
-
-                                                </ul>
-                                                <div class="tab-content">
-
-                                                    <div class="tab-pane show active" id="Admit-pat">
-
-                                                        <form id="" method="post" action="">
-                                                            <input type="hidden" name="nurse_id" value="<?php echo isset($refAdmissionDetail->nurse_id) ? $refAdmissionDetail->nurse_id : NULL ?>" />
-
-                                                            <div class="titleData">
-                                                                <div class="row clearfix">
-
-                                                                    <div class="col-sm-4">
-                                                                        <?php
-                                                                        $mr = "";
-                                                                        $mrs = "";
-                                                                        $master = "";
-                                                                        $miss = "";
-                                                                        $titl = "";
-                                                                        if ($patient->title == "Mr") {
-                                                                            $mr = "checked='checked'";
-                                                                            $mrs = "";
-                                                                            $master = "";
-                                                                            $miss = "";
-                                                                            $titl = "";
-                                                                        } else if ($patient->title == "Mrs") {
-                                                                            $mrs = "checked='checked'";
-                                                                        } else if ($patient->title == "Master") {
-                                                                            $master = "checked='checked'";
-                                                                        } else if ($patient->title == "Miss") {
-                                                                            $miss = "checked='checked'";
-                                                                        }
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Hospital Clinic</label>
+                                                                <select class="form-control" id="clinic_id" required="" disabled>
+                                                                    <option value="">-- Select Clinic --</option>
+                                                                    <?php
+                                                                    $patientSubClinics = PatientSubClinic::find_by_patient_id($patient->id);
+                                                                    //  $patientSubClinics = PatientSubClinic::find_by_id($patient->id);
+                                                                    $finds = Clinic::find_all();
+                                                                    $sub_clinic = SubClinic::find_by_id($patientSubClinics->sub_clinic_id);
+                                                                    foreach ($finds as $clinic) {
                                                                         ?>
-                                                                        <div class="form-group">
-                                                                            <label> Title </label>
-                                                                            <br>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="title" value="Mr" required="" data-parsley-errors-container="#error-radio" <?= $mr ?> disabled>
-                                                                                <span><i></i>Mr</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="title" value="Mrs" <?= $mrs ?> disabled>
-                                                                                <span><i></i>Mrs</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="title" value="Master" <?= $master ?> disabled>
-                                                                                <span><i></i>Master</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="title" value="Miss" <?= $miss ?> disabled>
-                                                                                <span><i></i>Miss</span>
-                                                                            </label>
-                                                                            <p id="error-radio"></p>
-                                                                        </div>
-
-
-                                                                    </div>
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>First Name</label>
-                                                                            <input type="text" class="form-control" name="first_name" id="first_name" value="<?= $patient->first_name ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Last Name</label>
-                                                                            <input type="text" class="form-control" name="last_name" id="last_name" value="<?= $patient->last_name ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="row clearfix">
-                                                                    <?php
-                                                                    $inPat = "";
-                                                                    if (!empty($refAdmissionDetail->in_patient_id)) {
-                                                                        $inPat = $refAdmissionDetail->in_patient_id;
-                                                                    } else {
-                                                                        $inPat = $numPrint;
-                                                                    }
-                                                                    ?>
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>In-patient id</label>
-                                                                            <input type="text" class="form-control" name="in_patient_id" value="<?= $inPat ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Hospital Number</label>
-                                                                            <input type="text" class="form-control" name="hospital_number" value="<?= $patient->folder_number ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Hospital Clinic</label>
-                                                                            <select class="form-control" id="clinic_id" required="" disabled>
-                                                                                <option value="">-- Select Clinic --</option>
-                                                                                <?php
-                                                                                $patientSubClinics = PatientSubClinic::find_by_patient_id($patient->id);
-                                                                                //  $patientSubClinics = PatientSubClinic::find_by_id($patient->id);
-                                                                                $finds = Clinic::find_all();
-                                                                                $sub_clinic = SubClinic::find_by_id($patientSubClinics->sub_clinic_id);
-                                                                                foreach ($finds as $clinic) {
-                                                                                ?>
-                                                                                    <option value="<?php echo $clinic->id; ?>" <?= $patientSubClinics->clinic_id == $clinic->id ? "selected='selected'" : '' ?>><?php echo $clinic->name; ?></option>
-                                                                                <?php } ?>
-                                                                            </select>
-                                                                            <input type="hidden" name="clinic_id" value="<?php echo $patientSubClinics->clinic_id; ?>" />
-                                                                        </div>
-                                                                    </div>
-
-
-                                                                </div>
-
-                                                                <div class="row clearfix">
-
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Sub-Clinic</label>
-                                                                            <div id="sub_clinic_id">
-                                                                                <input type="text" class="form-control" name="sub_clinic_id" value="<?php echo $sub_clinic->name; ?>" readonly />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Clinic Number</label>
-                                                                            <input type="text" class="form-control" name="clinic_number" value="<?php echo $patientSubClinics->clinic_number; ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Date Of Birth</label>
-                                                                            <input type="text" class="form-control" name="dob" id="" placeholder="dd-mm-yyyy" value="<?php echo date("Y-m-d", strtotime($patient->dob)); ?>" required="" readonly>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label> Gender </label>
-                                                                            <br>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="gender" value="Male" required="" data-parsley-errors-container="#error-radio" <?= ($patient->gender == "Male") ? "checked='checked'" : '' ?> disabled />
-                                                                                <span><i></i>Male</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="gender" value="Female" <?= ($patient->gender == "Female") ? "checked='checked'" : '' ?> disabled />
-                                                                                <span><i></i>Female</span>
-                                                                            </label>
-                                                                            <p id="error-radio"></p>
-                                                                        </div>
-                                                                    </div>
-
-
-                                                                </div>
+                                                                        <option value="<?php echo $clinic->id; ?>" <?= $patientSubClinics->clinic_id == $clinic->id ? "selected='selected'" : '' ?>><?php echo $clinic->name; ?></option>
+                                                                    <?php } ?>
+                                                                </select>
+                                                                <input type="hidden" name="clinic_id" value="<?php echo $patientSubClinics->clinic_id; ?>" />
                                                             </div>
+                                                        </div>
 
-
-
-                                                            <div id="editinfo">
-                                                                <input type="hidden" value="<?php echo $patient->id; ?>" name="patient_id" />
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Consultant Dr.</label>
-                                                                            <?php
-                                                                            $userConsult = User::find_by_department("Consultancy");
-                                                                            ?>
-                                                                            <!-- <select class="form-control" name="Consultantdr" required>
-                                                                                                <option value="">-- Select Consultant --</option> -->
-                                                                            <?php
-                                                                            $selec = "";
-                                                                            foreach ($userConsult as $co) {
-                                                                                if (!empty($refAdmissionDetail->Consultantdr)) {
-                                                                                    echo "<input type='hidden' name='Consultantdr' value='" . $refAdmissionDetail->Consultantdr . "'/>";
-                                                                                    if ($co->id == $refAdmissionDetail->Consultantdr) {
-                                                                                        $selec = "selected='selected'";
-                                                                                    } else {
-                                                                                        $selec = "";
-                                                                                    }
-                                                                                    echo "<input type='text' name='' class='form-control' value='" . $co->first_name . ' ' . $co->last_name . "' readonly/>";
-                                                                                    break;
-                                                                                } else {
-                                                                                    echo "<input type='hidden' name='Consultantdr' value='" . $user->id . "'/>";
-                                                                                    if ($co->id == $user->id) {
-                                                                                        $selec = "selected='selected'";
-                                                                                    } else {
-                                                                                        $selec = "";
-                                                                                    }
-                                                                                    echo "<input type='text' name='' class='form-control' value='" . $co->first_name . ' ' . $co->last_name . "' readonly/>";
-                                                                                    break;
-                                                                                }
-
-                                                                                //echo "<input  value='" . $co->id . "' " . $selec . "> " . $co->first_name . " " . $co->last_name . " </option>";
-                                                                            }
-                                                                            ?>
-                                                                            <!-- </select> -->
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Adm. Date & Time </label>
-
-                                                                            <!--  <input type="time" name="usr_time" value="<?php // echo date("H:m", strtotime($refAdmissionDetail->adm_date)); 
-                                                                                                                            ?>">  -->
-                                                                            <input type="date" class="form-control" readonly id="adm_date" name="adm_date" value="<?php echo date("Y-m-d", strtotime($refAdmissionDetail->adm_date)); ?>" />
-
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">Location</label>
-
-                                                                            <select class="form-control bed_location_id_doctor" name="location" readonly>
-                                                                                <option value="">-- Select Location --</option>
-
-                                                                                <?php
-                                                                                if (!empty($location)) {
-                                                                                    foreach ($location as $locData) {
-                                                                                ?>
-                                                                                        <option value="<?= $locData->id ?>" <?= (!empty($refAdmissionDetail->location) && $refAdmissionDetail->location == $locData->id) ? "selected='selected'" : "" ?>><?= ucfirst($locData->location_name) ?></option>
-                                                                                <?php
-                                                                                    }
-                                                                                }
-                                                                                ?>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Ward</label>
-                                                                            <select class="form-control ward_id ward_change_doctor" name="ward_no" required>
-                                                                                <option value="">-- Select Ward --</option>
-
-                                                                                <?= $dataWard ?>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Room No.</label>
-                                                                            <select class="form-control room_no" name="room_no" required>
-                                                                                <option value="">-- Select Room --</option>
-
-                                                                                <?php
-                                                                                if (!empty($roomListData)) {
-                                                                                    foreach ($roomListData as $roomListDataData) {
-                                                                                ?>
-                                                                                        <option value="<?= $roomListDataData->id ?>" <?= (!empty($refAdmissionDetail->room_no) && $refAdmissionDetail->room_no == $roomListDataData->id) ? "selected='selected'" : "" ?>><?= ucfirst($roomListDataData->room_number) ?></option>
-                                                                                <?php
-                                                                                    }
-                                                                                }
-                                                                                ?>
-
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">Bed No.</label>
-                                                                            <select class="form-control bed_no" name="bed_no" readonly>
-                                                                                <option value="">-- Select Bed No --</option>
-
-                                                                                <?php
-
-                                                                                echo $bedListOptions;
-                                                                                ?>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Medical / Surgical</label>
-                                                                            <br>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="m_s" value="Surgical" required="" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->m_s) && ($refAdmissionDetail->m_s == "Surgical")) ? "checked='checked'" : "" ?>>
-                                                                                <span><i></i>Surgical</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="m_s" value="Non-Surgical" <?= (!empty($refAdmissionDetail->m_s) && ($refAdmissionDetail->m_s == "Non-Surgical")) ? "checked='checked'" : "" ?>>
-                                                                                <span><i></i>Non-Surgical</span>
-                                                                            </label>
-
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Admission Purpose</label>
-                                                                            <br>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="adm_purpose" value="General" required="" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "General")) ? "checked='checked'" : "" ?>>
-                                                                                <span><i></i> General</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="adm_purpose" value="Observation" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "Observation")) ? "checked='checked'" : "" ?>>
-                                                                                <span><i></i> Observation</span>
-                                                                            </label>
-                                                                            <label class="fancy-radio">
-                                                                                <input type="radio" name="adm_purpose" value="Surgery" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "Surgery")) ? "checked='checked'" : "" ?>>
-                                                                                <span><i></i>Surgery</span>
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">IPD Services </label>
-                                                                            <br>
-                                                                            <!--    <br>  -->
-                                                                            <?php
-                                                                            if (isset($ipService)) {
-                                                                                $selectedIpd = isset($refAdmissionDetail->ipd_service) ? $refAdmissionDetail->ipd_service : '';
-                                                                                $encodeIpd = [];
-                                                                                if (isset($selectedIpd)) {
-                                                                                    $encodeIpd = json_decode($selectedIpd);
-                                                                                }
-                                                                                //pre_d($encodeIpd);die;
-                                                                                foreach ($ipService as $ipdServices) {
-                                                                                    $selIpd = "";
-                                                                                    if (in_array($ipdServices->id, $encodeIpd)) {
-                                                                                        $selIpd = "checked='checked'";
-                                                                                    } else {
-                                                                                        $selIpd = "";
-                                                                                    }
-                                                                            ?>
-                                                                                    <label class="fancy-checkbox">
-                                                                                        <input type="checkbox" name="ipd_service[]" value="<?php echo $ipdServices->id ?>" data-parsley-errors-container="#error-checkbox" <?= $selIpd ?>>
-                                                                                        <span><?php echo $ipdServices->service_name ?></span>
-                                                                                    </label>
-                                                                            <?php
-                                                                                }
-                                                                            }
-                                                                            ?>
-
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label>Payment Type</label>
-                                                                            <input type="text" class="form-control" placeholder="Cash" id="" value="Cash" name="payment_type" readonly>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4" style="display:none;">
-                                                                        <div class="form-group">
-                                                                            <label>Add Wallet Balance </label>
-
-                                                                            <div class="input-group mb-3">
-                                                                                <input type="text" class="form-control" placeholder="" id="add_wall_balance" name="add_wall_balance" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-                                                                                <div class="input-group-append">
-                                                                                    <button class="addBut btn btn-outline-secondary" type="button">Add</button>
-                                                                                </div>
-                                                                            </div>
-
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">Wallet Balance</label>
-                                                                            <input type="text" class="form-control" placeholder="" id="wall_balance" name="wall_balance" readonly value="<?= (!empty($refAdmissionDetail->wall_balance)) ? $refAdmissionDetail->wall_balance : '' ?>">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row clearfix">
-                                                                    <div class="col-sm-4">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">Patient Category </label>
-                                                                            <select class="form-control" name="pat_category" readonly>
-                                                                                <option value="">-- Select Patient Category --</option>
-                                                                                <option value="General" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "General")) ? "selected='selected'" : "" ?>>General</option>
-                                                                                <option value="VIP" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "VIP")) ? "selected='selected'" : "" ?>>VIP</option>
-                                                                                <option value="Veteran" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "Veteran")) ? "selected='selected'" : "" ?>>Veteran</option>
-
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label> Remarks </label>
-                                                                    <textarea class="form-control" readonly name="remark" rows="3" cols="10"><?= (!empty($refAdmissionDetail->remark)) ? $refAdmissionDetail->remark : '' ?></textarea>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label> Remarks Nurse </label>
-                                                                    <textarea class="form-control" readonly name="remark_nurse" rows="3" cols="10"><?= (!empty($refAdmissionDetail->remark_nurse)) ? $refAdmissionDetail->remark_nurse : '' ?></textarea>
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <!--   <input type="submit" value="Save" class="btn btn-primary" />    -->
-                                                                    <?php
-                                                                    if (!empty($singleReferData)) {
-                                                                    ?>
-                                                                        <a href="pdfGenerate.php?id=<?= $_GET['id']; ?>" target="_blank" class="btn btn-primary">Print PDF</a>
-                                                                    <?php
-                                                                    } ?>
-                                                                </div>
-
-                                                            </div>
-
-                                                        </form>
 
                                                     </div>
 
-                                                    <div class="tab-pane" id="SOAP">
-
-                                                        <h5>SOAP</h5>
-
-                                                        <form action="" method="post">
+                                                    <div class="row clearfix">
 
 
-                                                            <nav aria-label="breadcrumb">
-                                                                <ol class="breadcrumb">
-                                                                    <li class="breadcrumb-item active" aria-current="page"><b>PRESENTING
-                                                                            COMPLAIN</b></li>
-                                                                </ol>
-                                                            </nav>
-
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Sub-Clinic</label>
+                                                                <div id="sub_clinic_id">
+                                                                    <input type="text" class="form-control" name="sub_clinic_id" value="<?php echo $sub_clinic->name; ?>" readonly />
                                                                 </div>
-                                                                <div class="col-sm-5">
-                                                                    <strong>COMPLAINS</strong>
-                                                                    <input name="waitList_id" value="{{ $waitList->id }}" hidden>
-                                                                </div>
-                                                                <div class="col-sm-3">
-                                                                    <strong>DURATION</strong>
-                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Clinic Number</label>
+                                                                <input type="text" class="form-control" name="clinic_number" value="<?php echo $patientSubClinics->clinic_number; ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Date Of Birth</label>
+                                                                <input type="text" class="form-control" name="dob" id="" placeholder="dd-mm-yyyy" value="<?php echo date("Y-m-d", strtotime($patient->dob)); ?>" required="" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label> Gender </label>
+                                                                <br>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="gender" value="Male" required="" data-parsley-errors-container="#error-radio" <?= ($patient->gender == "Male") ? "checked='checked'" : '' ?> disabled />
+                                                                    <span><i></i>Male</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="gender" value="Female" <?= ($patient->gender == "Female") ? "checked='checked'" : '' ?> disabled />
+                                                                    <span><i></i>Female</span>
+                                                                </label>
+                                                                <p id="error-radio"></p>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div id="editinfo">
+                                                    <input type="hidden" value="<?php echo $patient->id; ?>" name="patient_id" />
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Consultant Dr.</label>
+                                                                <?php
+                                                                $userConsult = User::find_by_department("Consultancy");
+                                                                ?>
+                                                                <!-- <select class="form-control" name="Consultantdr" required>
+                                                                                    <option value="">-- Select Consultant --</option> -->
+                                                                <?php
+                                                                $selec = "";
+                                                                foreach ($userConsult as $co) {
+                                                                    if (!empty($refAdmissionDetail->Consultantdr)) {
+                                                                        echo "<input type='hidden' name='Consultantdr' value='" . $refAdmissionDetail->Consultantdr . "'/>";
+                                                                        if ($co->id == $refAdmissionDetail->Consultantdr) {
+                                                                            $selec = "selected='selected'";
+                                                                        } else {
+                                                                            $selec = "";
+                                                                        }
+                                                                        echo "<input type='text' name='' class='form-control' value='" . $co->first_name . ' ' . $co->last_name . "' readonly/>";
+                                                                        break;
+                                                                    } else {
+                                                                        echo "<input type='hidden' name='Consultantdr' value='" . $user->id . "'/>";
+                                                                        if ($co->id == $user->id) {
+                                                                            $selec = "selected='selected'";
+                                                                        } else {
+                                                                            $selec = "";
+                                                                        }
+                                                                        echo "<input type='text' name='' class='form-control' value='" . $co->first_name . ' ' . $co->last_name . "' readonly/>";
+                                                                        break;
+                                                                    }
+
+                                                                    //echo "<input  value='" . $co->id . "' " . $selec . "> " . $co->first_name . " " . $co->last_name . " </option>";
+                                                                }
+                                                                ?>
+                                                                <!-- </select> -->
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Adm. Date & Time </label>
+
+                                                                <!--  <input type="time" name="usr_time" value="<?php // echo date("H:m", strtotime($refAdmissionDetail->adm_date));
+                                                                ?>">  -->
+                                                                <input type="date" class="form-control" readonly id="adm_date" name="adm_date" value="<?php echo date("Y-m-d", strtotime($refAdmissionDetail->adm_date)); ?>" />
 
                                                             </div>
+                                                        </div>
 
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> Presenting Complain <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-5">
-                                                                    <select class="form-control complain_label" id="complain"
-                                                                            name="complain[]" multiple="multiple">
-                                                                        <?php
-                                                                        $complains = Complain::find_all();
-                                                                        foreach($complains as $complain) {
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Location</label>
+
+                                                                <select class="form-control bed_location_id_doctor" name="location" readonly>
+                                                                    <option value="">-- Select Location --</option>
+
+                                                                    <?php
+                                                                    if (!empty($location)) {
+                                                                        foreach ($location as $locData) {
                                                                             ?>
-                                                                            <option value="<?php echo $complain->name ?>"><?php echo $complain->name ?></option>
-                                                                        <?php } ?>
-                                                                    </select>
-
-                                                                </div>
-
-                                                                <div class="col-sm-3">
-                                                                    <input type="text" class="form-control" name="complain_duration">
-
-                                                                </div>
+                                                                            <option value="<?= $locData->id ?>" <?= (!empty($refAdmissionDetail->location) && $refAdmissionDetail->location == $locData->id) ? "selected='selected'" : "" ?>><?= ucfirst($locData->location_name) ?></option>
+                                                                            <?php
+                                                                        }
+                                                                    }
+                                                                    ?>
+                                                                </select>
                                                             </div>
+                                                        </div>
+                                                    </div>
 
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> History Of Complain <span class="text-danger">*</span></label>
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Ward</label>
+                                                                <select class="form-control ward_id ward_change_doctor" name="ward_no" required>
+                                                                    <option value="">-- Select Ward --</option>
+
+                                                                    <?= $dataWard ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Room No.</label>
+                                                                <select class="form-control room_no" name="room_no" required>
+                                                                    <option value="">-- Select Room --</option>
+
+                                                                    <?php
+                                                                    if (!empty($roomListData)) {
+                                                                        foreach ($roomListData as $roomListDataData) {
+                                                                            ?>
+                                                                            <option value="<?= $roomListDataData->id ?>" <?= (!empty($refAdmissionDetail->room_no) && $refAdmissionDetail->room_no == $roomListDataData->id) ? "selected='selected'" : "" ?>><?= ucfirst($roomListDataData->room_number) ?></option>
+                                                                            <?php
+                                                                        }
+                                                                    }
+                                                                    ?>
+
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Bed No.</label>
+                                                                <select class="form-control bed_no" name="bed_no" readonly>
+                                                                    <option value="">-- Select Bed No --</option>
+
+                                                                    <?php
+
+                                                                    echo $bedListOptions;
+                                                                    ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Medical / Surgical</label>
+                                                                <br>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="m_s" value="Surgical" required="" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->m_s) && ($refAdmissionDetail->m_s == "Surgical")) ? "checked='checked'" : "" ?>>
+                                                                    <span><i></i>Surgical</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="m_s" value="Non-Surgical" <?= (!empty($refAdmissionDetail->m_s) && ($refAdmissionDetail->m_s == "Non-Surgical")) ? "checked='checked'" : "" ?>>
+                                                                    <span><i></i>Non-Surgical</span>
+                                                                </label>
+
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Admission Purpose</label>
+                                                                <br>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="adm_purpose" value="General" required="" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "General")) ? "checked='checked'" : "" ?>>
+                                                                    <span><i></i> General</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="adm_purpose" value="Observation" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "Observation")) ? "checked='checked'" : "" ?>>
+                                                                    <span><i></i> Observation</span>
+                                                                </label>
+                                                                <label class="fancy-radio">
+                                                                    <input type="radio" name="adm_purpose" value="Surgery" data-parsley-errors-container="#error-radio" <?= (!empty($refAdmissionDetail->adm_purpose) && ($refAdmissionDetail->adm_purpose == "Surgery")) ? "checked='checked'" : "" ?>>
+                                                                    <span><i></i>Surgery</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">IPD Services </label>
+                                                                <br>
+                                                                <!--    <br>  -->
+                                                                <?php
+                                                                if (isset($ipService)) {
+                                                                    $selectedIpd = isset($refAdmissionDetail->ipd_service) ? $refAdmissionDetail->ipd_service : '';
+                                                                    $encodeIpd = [];
+                                                                    if (isset($selectedIpd)) {
+                                                                        $encodeIpd = json_decode($selectedIpd);
+                                                                    }
+                                                                    //pre_d($encodeIpd);die;
+                                                                    foreach ($ipService as $ipdServices) {
+                                                                        $selIpd = "";
+                                                                        if (in_array($ipdServices->id, $encodeIpd)) {
+                                                                            $selIpd = "checked='checked'";
+                                                                        } else {
+                                                                            $selIpd = "";
+                                                                        }
+                                                                        ?>
+                                                                        <label class="fancy-checkbox">
+                                                                            <input type="checkbox" name="ipd_service[]" value="<?php echo $ipdServices->id ?>" data-parsley-errors-container="#error-checkbox" <?= $selIpd ?>>
+                                                                            <span><?php echo $ipdServices->service_name ?></span>
+                                                                        </label>
+                                                                        <?php
+                                                                    }
+                                                                }
+                                                                ?>
+
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label>Payment Type</label>
+                                                                <input type="text" class="form-control" placeholder="Cash" id="" value="Cash" name="payment_type" readonly>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4" style="display:none;">
+                                                            <div class="form-group">
+                                                                <label>Add Wallet Balance </label>
+
+                                                                <div class="input-group mb-3">
+                                                                    <input type="text" class="form-control" placeholder="" id="add_wall_balance" name="add_wall_balance" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                                                                    <div class="input-group-append">
+                                                                        <button class="addBut btn btn-outline-secondary" type="button">Add</button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-sm-5">
+
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Wallet Balance</label>
+                                                                <input type="text" class="form-control" placeholder="" id="wall_balance" name="wall_balance" readonly value="<?= (!empty($refAdmissionDetail->wall_balance)) ? $refAdmissionDetail->wall_balance : '' ?>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Patient Category </label>
+                                                                <select class="form-control" name="pat_category" readonly>
+                                                                    <option value="">-- Select Patient Category --</option>
+                                                                    <option value="General" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "General")) ? "selected='selected'" : "" ?>>General</option>
+                                                                    <option value="VIP" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "VIP")) ? "selected='selected'" : "" ?>>VIP</option>
+                                                                    <option value="Veteran" <?= (!empty($refAdmissionDetail->pat_category) && ($refAdmissionDetail->pat_category == "Veteran")) ? "selected='selected'" : "" ?>>Veteran</option>
+
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Type Of Admission </label>
+                                                                <select class="form-control" name="adm_type" readonly>
+                                                                    <option value="">-- Select Admission Type --</option>
+                                                                    <option value="From Outside" <?= (!empty($refAdmissionDetail->adm_type) && ($refAdmissionDetail->adm_type == "From Outside")) ? "selected='selected'" : "" ?>>From Outside</option>
+                                                                    <option value="Transfer from other unit" <?= (!empty($refAdmissionDetail->adm_type) && ($refAdmissionDetail->adm_type == "Transfer from other unit")) ? "selected='selected'" : "" ?>>Transfer from other unit</option>
+                                                                    <option value="Waiting List" <?= (!empty($refAdmissionDetail->adm_type) && ($refAdmissionDetail->adm_type == "Waiting List")) ? "selected='selected'" : "" ?>>Waiting List</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label> Remarks </label>
+                                                        <textarea class="form-control" readonly name="remark" rows="3" cols="10"><?= (!empty($refAdmissionDetail->remark)) ? $refAdmissionDetail->remark : '' ?></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label> Remarks Nurse </label>
+                                                        <textarea class="form-control" readonly name="remark_nurse" rows="3" cols="10"><?= (!empty($refAdmissionDetail->remark_nurse)) ? $refAdmissionDetail->remark_nurse : '' ?></textarea>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <!--   <input type="submit" value="Save" class="btn btn-primary" />    -->
+                                                        <?php
+                                                        if (!empty($singleReferData)) {
+                                                            ?>
+                                                            <a href="pdfGenerate.php?id=<?= $_GET['id']; ?>" target="_blank" class="btn btn-primary">Print PDF</a>
+                                                            <?php
+                                                        } ?>
+                                                    </div>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+
+                                        <div class="tab-pane" id="SOAP">
+
+                                            <h5>SOAP</h5>
+
+                                            <form action="" method="post">
+                                                <?php
+                                                $ward = "ICU";
+                                                $wardName = Wards::find_by_id($admDetail->ward_no);
+                                                if ($wardName->ward_number == $ward){
+                                                    ?>
+                                                    <nav aria-label="breadcrumb">
+                                                        <ol class="breadcrumb">
+                                                            <li class="breadcrumb-item active" aria-current="page"><b>ICU RECORDS</b></li>
+                                                        </ol>
+                                                    </nav>
+
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-3">
+                                                            <strong>SPO2 ON ADMISSION</strong>
+                                                            <input type="text" name="spo2" id="spo2" class="form-control" value="<?php echo $spo2 ?>">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>GLASGOW COMA SCORE</strong>
+                                                            <input name="gcs" value="<?php echo $gcs ?>" id="gcs" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>PCV ON ADMISSION</strong>
+                                                            <input name="pcv" value="<?php echo $pcv ?>" id="gcs" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>BLOOD TRANSFUSSION</strong>
+                                                            <input name="bloodTrans" value="<?php echo $bloodTrans ?>" id="gcs" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-2">
+                                                            <strong>USE OF VASOPRO</strong>
+                                                            <input type="text" name="vasopro" id="vasopro" class="form-control" value="<?php echo $vasopro ?>">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>USE OF ANTICOAGULANT</strong>
+                                                            <input name="anticoagulant" value="<?php echo $anticoagulant ?>" id="anticoagulant" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>COMORBIDITY</strong>
+                                                            <input name="comorbidity" value="<?php echo $comorbidity ?>" id="comorbidity" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <strong>INDICATION FOR ICU ADMISSION</strong>
+                                                            <input name="indIcuAdm" value="<?php echo $indIcuAdm ?>" id="indIcuAdm" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <strong>MANAGING TEAM</strong>
+                                                            <input name="managing_team" id="managing_team" class="form-control" value="<?php echo $managing_team ?>">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-4">
+                                                            <strong>USE OF VENTILATOR</strong>
+                                                            <input name="ventilator" value="<?php echo $ventilator ?>" id="ventilator" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <strong>MODE OF VENTILATION</strong>
+                                                            <select name="vent_mode" id="vent_mode" class="form-control">
+                                                                <option>--Mode Of Ventilation--</option>
+                                                                <option value="IPPV">IPPV</option>
+                                                                <option value="SIMV">SIMV</option>
+                                                                <option value="CPAP">CPAP</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <strong>OTHERS</strong>
+                                                            <input name="ventMode_others" value="<?php echo $ventMode_others ?>" id="ventMode_others" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-3">
+                                                            <strong>AIRWAYS:</strong>
+                                                            <select name="airways" id="airways" class="form-control">
+                                                                <option>--Select Airways--</option>
+                                                                <option value="NASAL CANNULA">NASAL CANNULA</option>
+                                                                <option value="FACEMASK">FACEMASK</option>
+                                                                <option value="ENDOTRACHEAL TUBE">ENDOTRACHEAL TUBE</option>
+                                                                <option value="TRACHEOSTOMY">TRACHEOSTOMY</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>DURATION OF VENTILATION</strong>
+                                                            <input name="duration_vent" value="<?php echo $duration_vent ?>" id="duration_vent" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>CRITICAL INCIDENT</strong>
+                                                            <select name="critical_incident" id="critical_incident" class="form-control">
+                                                                <option>--Critical Incident--</option>
+                                                                <option value="CARDIAC ARREST">CARDIAC ARREST</option>
+                                                                <option value="BRACHOTEM DEATH">BRACHOTEM DEATH</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>OTHERS</strong>
+                                                            <input name="incident_others" value="<?php echo $incident_others ?>" id="incident_others" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-3">
+                                                            <strong>NUMBER OF DAYS ON VENTILATOR</strong>
+                                                            <input name="vent_days" id="vent_days" class="form-control" value="<?php echo  $vent_days ?>">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>DATE OF DISCHARGE FROM ICU</strong>
+                                                            <input type="date" name="discharge_date" value="<?php echo $discharge_date ?>" id="discharge_date" class="form-control">
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>SPECIFIC REMARK</strong>
+                                                            <input name="spec_remark" id="spec_remark" class="form-control" value="<?php echo $remark ?>">
+
+                                                        </div>
+                                                        <div class="col-sm-3">
+                                                            <strong>OUTCOME</strong>
+                                                            <select name="outcome" id="outcome" class="form-control">
+                                                                <option>--Select Outcome--</option>
+                                                                <option value="TRANSFERED TO WARD">TRANSFERRED TO WARD</option>
+                                                                <option value="DIED">DIED</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <nav aria-label="breadcrumb">
+                                                    <ol class="breadcrumb">
+                                                        <li class="breadcrumb-item active" aria-current="page"><b>PRESENTING
+                                                                COMPLAIN</b></li>
+                                                    </ol>
+                                                </nav>
+
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <strong>COMPLAINS</strong>
+                                                        <input name="waitList_id" value="{{ $waitList->id }}" hidden>
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>DURATION</strong>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> Presenting Complain <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select class="form-control complain_label" id="complain"
+                                                                name="complain[]" multiple="multiple">
+                                                            <?php
+                                                            $complains = Complain::find_all();
+                                                            foreach($complains as $complain) {
+                                                                ?>
+                                                                <option value="<?php echo $complain->name ?>"><?php echo $complain->name ?></option>
+                                                            <?php } ?>
+                                                        </select>
+
+                                                    </div>
+
+                                                    <div class="col-sm-3">
+                                                        <input type="text" class="form-control" name="complain_duration">
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> History Of Complain <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
                                                         <textarea class="form-control" name="hpc">
 
                                                         </textarea>
-                                                                </div>
-                                                                <div class="col-sm-3">
+                                                    </div>
+                                                    <div class="col-sm-3">
 
-                                                                </div>
-                                                            </div>
+                                                    </div>
+                                                </div>
 
-                                                            <nav aria-label="breadcrumb">
-                                                                <ol class="breadcrumb">
-                                                                    <li class="breadcrumb-item active" aria-current="page"><b>SYSTEMIC
-                                                                            REVIEW</b></li>
-                                                                </ol>
-                                                            </nav>
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> Systemic Review <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-8">
+                                                <nav aria-label="breadcrumb">
+                                                    <ol class="breadcrumb">
+                                                        <li class="breadcrumb-item active" aria-current="page"><b>SYSTEMIC
+                                                                REVIEW</b></li>
+                                                    </ol>
+                                                </nav>
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> Systemic Review <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-8">
 
                                                                 <textarea class="form-control" name="system_review">
 
                                                                 </textarea>
 
-                                                                </div>
-                                                            </div>
+                                                    </div>
+                                                </div>
 
 
-                                                            <nav aria-label="breadcrumb">
-                                                                <ol class="breadcrumb">
-                                                                    <li class="breadcrumb-item active" aria-current="page"><b>PHYSICAL
-                                                                            EXAMINATION</b></li>
+                                                <nav aria-label="breadcrumb">
+                                                    <ol class="breadcrumb">
+                                                        <li class="breadcrumb-item active" aria-current="page"><b>PHYSICAL
+                                                                EXAMINATION</b></li>
 
-                                                                    <!-- <li style="margin-left: auto"
-                                                                         class="breadcrumb-item active dropdown-toggle"
-                                                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                                         aria-current="page"><b>Select Options</b>
-                                                                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                                                             <a id="selGeneral" class="dropdown-item" href="#">General
-                                                                                 Examination</a>
-                                                                             <a id="selCns" class="dropdown-item" href="#">Central Nervous
-                                                                                 System</a>
-                                                                             <a id="selResp" class="dropdown-item" href="#">Respiratory
-                                                                                 System</a>
-                                                                             <a id="selCad" class="dropdown-item"
-                                                                                href="#">Cardio-Vascular</a>
-                                                                             <a id="selAbd" class="dropdown-item" href="#">Abdominal</a>
-                                                                             <a id="selUroF" class="dropdown-item" href="#">Urogenital
-                                                                                 Female</a>
-                                                                             <a id="selUroM" class="dropdown-item" href="#">Urogenital
-                                                                                 Male</a>
-                                                                             <a id="selNeuro" class="dropdown-item" href="#">Neurologic</a>
-                                                                             <a id="selGas" class="dropdown-item" href="#">Gastrointestinal
-                                                                                 Tract</a>
-                                                                             <a id="selExamNote" class="dropdown-item" href="#"> Add Note </a>
-                                                                         </div>
-                                                                     </li>-->
+                                                        <!-- <li style="margin-left: auto"
+                                                             class="breadcrumb-item active dropdown-toggle"
+                                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                             aria-current="page"><b>Select Options</b>
+                                                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                                 <a id="selGeneral" class="dropdown-item" href="#">General
+                                                                     Examination</a>
+                                                                 <a id="selCns" class="dropdown-item" href="#">Central Nervous
+                                                                     System</a>
+                                                                 <a id="selResp" class="dropdown-item" href="#">Respiratory
+                                                                     System</a>
+                                                                 <a id="selCad" class="dropdown-item"
+                                                                    href="#">Cardio-Vascular</a>
+                                                                 <a id="selAbd" class="dropdown-item" href="#">Abdominal</a>
+                                                                 <a id="selUroF" class="dropdown-item" href="#">Urogenital
+                                                                     Female</a>
+                                                                 <a id="selUroM" class="dropdown-item" href="#">Urogenital
+                                                                     Male</a>
+                                                                 <a id="selNeuro" class="dropdown-item" href="#">Neurologic</a>
+                                                                 <a id="selGas" class="dropdown-item" href="#">Gastrointestinal
+                                                                     Tract</a>
+                                                                 <a id="selExamNote" class="dropdown-item" href="#"> Add Note </a>
+                                                             </div>
+                                                         </li>-->
 
-                                                                </ol>
-                                                            </nav>
+                                                    </ol>
+                                                </nav>
 
-                                                            <div class="form-group row" id="general">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> General Examination <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-8">
-                                                                    <select class="form-control gen_exam" id="gen_exam"
-                                                                            name="general[]" multiple="multiple">
-                                                                        <?php
-                                                                        $examinations = Examination::find_all();
-                                                                        foreach($examinations as $examination) {
-                                                                            ?>
-                                                                            <option value="<?php echo $examination->name ?>"><?php echo $examination->name ?></option>
-                                                                        <?php } ?>
+                                                <div class="form-group row" id="general">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> General Examination <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <select class="form-control gen_exam" id="gen_exam"
+                                                                name="general[]" multiple="multiple">
+                                                            <?php
+                                                            $examinations = Examination::find_all();
+                                                            foreach($examinations as $examination) {
+                                                                ?>
+                                                                <option value="<?php echo $examination->name ?>"><?php echo $examination->name ?></option>
+                                                            <?php } ?>
 
-                                                                    </select>
-                                                                </div>
-                                                            </div>
+                                                        </select>
+                                                    </div>
+                                                </div>
 
-                                                            <!--                                     <div class="form-group row" id="cns">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Central Nervous System <span
-                                                                                                                     class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control cns" id="cns"
-                                                                                                                 name="cns[]" multiple="multiple">
+                                                <!--                                     <div class="form-group row" id="cns">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Central Nervous System <span
+                                                                                                         class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control cns" id="cns"
+                                                                                                     name="cns[]" multiple="multiple">
 
-                                                                                                             @foreach($cnsExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="resp">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Respiratory System <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control resp" id="resp"
-                                                                                                                 name="resp[]" multiple="multiple">
+                                                                                                 @foreach($cnsExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="resp">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Respiratory System <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control resp" id="resp"
+                                                                                                     name="resp[]" multiple="multiple">
 
-                                                                                                             @foreach($respExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="cad">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Cardio-Vascular <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control cad" id="cad"
-                                                                                                                 name="cad[]" multiple="multiple">
+                                                                                                 @foreach($respExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="cad">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Cardio-Vascular <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control cad" id="cad"
+                                                                                                     name="cad[]" multiple="multiple">
 
-                                                                                                             @foreach($cadExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="abd">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Abdominal <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control abd" id="abd"
-                                                                                                                 name="abd[]" multiple="multiple">
+                                                                                                 @foreach($cadExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="abd">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Abdominal <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control abd" id="abd"
+                                                                                                     name="abd[]" multiple="multiple">
 
-                                                                                                             @foreach($abdExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="uroF">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Urogenital Female <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control uroF" id="uroF"
-                                                                                                                 name="uroF[]" multiple="multiple">
+                                                                                                 @foreach($abdExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="uroF">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Urogenital Female <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control uroF" id="uroF"
+                                                                                                     name="uroF[]" multiple="multiple">
 
-                                                                                                             @foreach($uroFemale as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="uroM">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Urogenital Male <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control uroM" id="uroM"
-                                                                                                                 name="uroM[]" multiple="multiple">
+                                                                                                 @foreach($uroFemale as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="uroM">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Urogenital Male <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control uroM" id="uroM"
+                                                                                                     name="uroM[]" multiple="multiple">
 
-                                                                                                             @foreach($uroMale as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="neuro">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Neurologic <span class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control neuro" id="neuro"
-                                                                                                                 name="neuro[]" multiple="multiple">
+                                                                                                 @foreach($uroMale as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="neuro">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Neurologic <span class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control neuro" id="neuro"
+                                                                                                     name="neuro[]" multiple="multiple">
 
-                                                                                                             @foreach($neuroExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>
-                                                                                                 <div class="form-group row" id="gas">
-                                                                                                     <div class="offset-sm-1 col-sm-3">
-                                                                                                         <label> Gastrointestinal Tract <span
-                                                                                                                     class="text-danger">*</span></label>
-                                                                                                     </div>
-                                                                                                     <div class="col-sm-8">
-                                                                                                         <select class="form-control gas" id="gas"
-                                                                                                                 name="gas[]" multiple="multiple">
+                                                                                                 @foreach($neuroExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                     <div class="form-group row" id="gas">
+                                                                                         <div class="offset-sm-1 col-sm-3">
+                                                                                             <label> Gastrointestinal Tract <span
+                                                                                                         class="text-danger">*</span></label>
+                                                                                         </div>
+                                                                                         <div class="col-sm-8">
+                                                                                             <select class="form-control gas" id="gas"
+                                                                                                     name="gas[]" multiple="multiple">
 
-                                                                                                             @foreach($gastroExams as $exam)
-                                                                                                             <option
-                                                                                                                     value="{{ $exam->name }}">{{ $exam->name }}</option>
-                                                                                                             @endforeach
-                                                                                                         </select>
-                                                                                                     </div>
-                                                                                                 </div>-->
+                                                                                                 @foreach($gastroExams as $exam)
+                                                                                                 <option
+                                                                                                         value="{{ $exam->name }}">{{ $exam->name }}</option>
+                                                                                                 @endforeach
+                                                                                             </select>
+                                                                                         </div>
+                                                                                     </div>-->
 
 
-                                                            <nav aria-label="breadcrumb">
-                                                                <ol class="breadcrumb">
-                                                                    <li class="breadcrumb-item active" aria-current="page"><b>DIAGNOSIS</b>
-                                                                    </li>
-                                                                </ol>
-                                                            </nav>
+                                                <nav aria-label="breadcrumb">
+                                                    <ol class="breadcrumb">
+                                                        <li class="breadcrumb-item active" aria-current="page"><b>DIAGNOSIS</b>
+                                                        </li>
+                                                    </ol>
+                                                </nav>
 
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> Diagnosis <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-8">
-                                                                    <input type="text" name="diagnosis" class="form-control"/>
-                                                                </div>
-                                                            </div>
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> Diagnosis <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <select class="form-control diagnosis" id="icd_sta"
+                                                                name="diagnosis">
+                                                            <option value="">--Select Diagnosis--</option>
+                                                            <?php
+                                                            $diagnosis = ICDCode::find_all();
+                                                            foreach($diagnosis as $diagnose) {
+                                                                ?>
+                                                                <option value="<?php echo $diagnose->name ?>"><?php echo $diagnose->name . " " . $diagnose->code ?></option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
 
-                                                            <div class="form-group row">
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> Differentials <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-8">
-                                                                    <input type="text" name="differentials" class="form-control"/>
-                                                                </div>
-                                                            </div>
+                                                <div class="form-group row">
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> Differentials <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <select class="form-control diagnosis" id="differentials"
+                                                                name="differentials[]" multiple="multiple">
+                                                            <option value="">--Select Differentials--</option>
+                                                            <?php
+                                                            $diagnosis = ICDCode::find_all();
+                                                            foreach($diagnosis as $diagnose) {
+                                                                ?>
+                                                                <option value="<?php echo $diagnose->name ?>"><?php echo $diagnose->name . " " . $diagnose->code ?></option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
 
-                                                            <div class="form-group row" >
-                                                                <div class="offset-sm-1 col-sm-3">
-                                                                    <label> Add Note <span class="text-danger">*</span></label>
-                                                                </div>
-                                                                <div class="col-sm-8">
+                                                <div class="form-group row" >
+                                                    <div class="offset-sm-1 col-sm-3">
+                                                        <label> Add Note <span class="text-danger">*</span></label>
+                                                    </div>
+                                                    <div class="col-sm-8">
 
                                                                     <textarea name="examNote" class="form-control" >
                                                                      </textarea>
 
-                                                                </div>
-
-                                                            </div>
-
-
-
-                                                            <!--      <h5>Subjective</h5>
-                                                                  <textarea class="form-control" name="subjective" rows="5"></textarea>
-
-                                                                  <h5>Objective</h5>
-                                                                  <textarea class="form-control" name="objective" rows="5"></textarea>
-
-                                                                  <h5>Assessment</h5>
-                                                                  <textarea class="form-control" name="assessment" rows="5"></textarea>
-
-                                                                  <h5>Plan</h5>
-                                                                  <textarea class="form-control" name="plan" rows="5"></textarea>-->
-
-                                                            <input type="submit" name="save_note" value="Save " class="btn-lg btn-success" />
-
-                                                        </form>
-
-
-
                                                     </div>
 
-                                                    <div class="tab-pane" id="ClinicalHistory">
+                                                </div>
 
-                                                        <?php include("../consult/patientHistory.php"); ?>
-
-
-                                                    </div>
-
-                                                    <div class="tab-pane" id="LaboratorySecond">
-
-
-                                                        <div class="row">
-                                                            <div class="col-md-7">
-
-                                                                <ul class="nav nav-tabs-new2">
-                                                                    <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#HaematologySecond">Haematology</a></li>
-                                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#ChemicalSecond">Chemical Pathology</a></li>
-                                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#MicrobiologySecond">Microbiology</a></li>
-                                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#HistologySecond">Histology</a></li>
-                                                                </ul>
-                                                                <div class="tab-content">
-                                                                    <div class="tab-pane show active" id="HaematologySecond">
-
-                                                                        <h5>Haematology</h5>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-striped">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th>Name Of Investigation</th>
-                                                                                    <!--  <th>Reference</th>-->
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="testItemsSecond">
-                                                                                <?php // $revs = Test::find_all();
-                                                                                $revs = Test::find_all_by_unit_id(1);
-                                                                                foreach ($revs as $rev) { ?>
-                                                                                    <tr data-id="<?php echo $rev->revenueHead_id; ?>">
-                                                                                        <td>
-                                                                                            <div class="checkbox">
-                                                                                                <label>
-                                                                                                    <input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
-                                                                                                </label>
-                                                                                            </div>
-
-                                                                                        </td>
-                                                                                        <!-- <td><?php /*echo $rev->reference */ ?></td>-->
-                                                                                    </tr>
-                                                                                <?php } ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div class="tab-pane" id="ChemicalSecond">
-
-                                                                        <h5>Chemical Pathology</h5>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-striped">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th>Name Of Investigation</th>
-                                                                                    <!-- <th>Reference</th>-->
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="chemItemsSecond">
-                                                                                <?php // $revs = Test::find_all();
-                                                                                $revs = Test::find_all_by_unit_id(2);
-                                                                                foreach ($revs as $rev) { ?>
-                                                                                    <tr data-id="<?php echo $rev->revenueHead_id; ?>">
-                                                                                        <td>
-                                                                                            <div class="checkbox"><label><input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
-                                                                                                </label>
-                                                                                            </div>
-
-                                                                                        </td>
-                                                                                        <!--  <td><?php /*echo $rev->reference */ ?></td>-->
-                                                                                    </tr>
-                                                                                <?php } ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div class="tab-pane" id="MicrobiologySecond">
-
-                                                                        <h5> Microbiology </h5>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-striped">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th>Name Of Investigation</th>
-
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="microItemsSecond">
-                                                                                <?php // $revs = Test::find_all();
-                                                                                $revs = Test::find_all_by_unit_id(3);
-                                                                                foreach ($revs as $rev) { ?>
-                                                                                    <tr data-id="<?php echo $rev->revenueHead_id; ?>">
-                                                                                        <td>
-                                                                                            <div class="checkbox"><label><input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
-                                                                                                </label>
-                                                                                            </div>
-
-                                                                                        </td>
-
-                                                                                    </tr>
-                                                                                <?php } ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div class="tab-pane" id="HistologySecond">
-
-                                                                        <h5> Histology </h5>
-
-
-                                                                    </div>
-
-                                                                </div>
-
-
-                                                            </div>
-                                                            <div class="col-md-5 bill" id="testCheckSecond">
-
-                                                            </div>
-                                                        </div>
-
-
-                                                    </div>
-
-                                                    <div class="tab-pane" id="RadiologySecond">
-
-
-                                                        <div class="row">
-                                                            <div class="col-md-7">
-
-                                                                <ul class="nav nav-tabs-new2">
-                                                                    <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Home-new2Second">Radiology</a></li>
-                                                                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Profile-new2Second"> Ultrasound Scan </a></li>
-                                                                </ul>
-                                                                <div class="tab-content">
-                                                                    <div class="tab-pane show active" id="Home-new2Second">
-
-                                                                        <h5>Radiology</h5>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-striped">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th>Name Of Investigation</th>
-
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="radioItems">
-                                                                                <?php // $revs = Test::find_all();
-                                                                                $revs = Test::find_all_by_unit_id(4);
-                                                                                foreach ($revs as $rev) { ?>
-                                                                                    <tr data-id="<?php echo $rev->revenueHead_id; ?>">
-                                                                                        <td>
-                                                                                            <div class="checkbox"><label><input type="checkbox" class="add_to_bill_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
-                                                                                                </label>
-                                                                                            </div>
-
-                                                                                        </td>
-
-                                                                                    </tr>
-                                                                                <?php } ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    <div class="tab-pane" id="Profile-new2Second">
-
-                                                                        <h5> Ultrasound Scan </h5>
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-striped">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th>Name Of Investigation</th>
-
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="scanItems">
-                                                                                <?php // $revs = Test::find_all();
-                                                                                $revs = Test::find_all_by_unit_id(5);
-                                                                                foreach ($revs as $rev) { ?>
-                                                                                    <tr data-id="<?php echo $rev->revenueHead_id; ?>">
-                                                                                        <td>
-                                                                                            <div class="checkbox"><label><input type="checkbox" class="add_to_bill_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
-                                                                                                </label>
-                                                                                            </div>
-
-                                                                                        </td>
-
-                                                                                    </tr>
-                                                                                <?php } ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-
-                                                                    </div>
-                                                                </div>
-
-
-                                                            </div>
-                                                            <div class="col-md-5 bill" id="scanCheck">
-
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div class="tab-pane" id="DrugSecond">
-
-                                                        <div class="row clearfix">
-
-                                                            <div class="col-sm-5">
-                                                                <h5> Prescribe Drugs For Patient </h5>
-                                                                <form id="formSearch">
-                                                                    <div class=" form-group">
-                                                                        <input type="text" placeholder="Name Of Drug" name="txtProduct" id="txtProduct" autocomplete="off" class="typeahead" />
-
-                                                                        <button type="submit" id="submit" class="btn btn-lg btn-info" data-loading-text="Searching...">Search
-                                                                        </button>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
-
-                                                            <div class="col-sm-7" id="save_page">
-                                                                <?php
-                                                                //  echo PatientBill::save_page();
+                                                <?php
+                                                            if ($admDetail->adm_purpose == "Surgery"){
                                                                 ?>
+                                                <nav aria-label="breadcrumb">
+                                                    <ol class="breadcrumb">
+                                                        <li class="breadcrumb-item active" aria-current="page"><b><h4>PREOPERATIVE NOTES</h4></b>
+                                                        </li>
+                                                    </ol>
+                                                </nav>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-3">
+                                                        <strong>PREOPERATIVE Hb.</strong>
+                                                        <input type="text" name="pre_hb" value="<?php echo $pre_hb ?>" id="pre_hb" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Date</strong>
+                                                        <input type="date" name="ope_date" value="<?php echo $ope_date ?>" id="ope_date" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Genotype</strong>
+                                                        <input type="text" name="ope_gn" value="<?php echo $ope_gn ?>" id="pre_gn" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Blood Group</strong>
+                                                        <input type="text" name="ope_bg" value="<?php echo $ope_bg ?>" id="ope_bg" class="form-control">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-3">
+                                                        <strong>Lab. Ref. No</strong>
+                                                        <input type="text" name="lab_refNo" value="<?php echo $lab_refNo ?>" id="lab_refNo" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>X-RAY Ref. No</strong>
+                                                        <input type="text" name="xray_refNo" value="<?php echo $xray_refNo ?>" id="ope_date" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Blood Crossmatched</strong>
+                                                        <input type="text" name="ope_bc" value="<?php echo $ope_bc ?>" id="pre_bc" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Known Allergies</strong>
+                                                        <input type="text" name="allergy" value="<?php echo $allergy ?>" id="allergy" class="form-control">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-4">
+                                                        <strong>Previous Drug History</strong>
+                                                        <input type="text" name="prev_drugHistory" value="<?php echo $prev_drugHistory ?>" id="prev_drugHistory" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <strong>Operation Proposed</strong>
+                                                        <input type="text" name="operationPro" value="<?php echo $operationPro ?>" id="operationPro" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Indications for Operation</strong>
+                                                        <input type="text" name="ope_indication" value="<?php echo $ope_indication ?>" id="ope_indication" class="form-control">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <div class="col-sm-3">
+                                                        <strong>Emergency/Elective</strong>
+                                                        <input type="text" name="emergencyElective" value="<?php echo $emergencyElective ?>" id="emergencyElective" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Proposed Date of Operation</strong>
+                                                        <input type="date" name="pdoo" value="<?php echo $pdoo ?>" id="pdoo" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>Consent Given(Yes/No)</strong>
+                                                        <input type="text" name="consentGiven" value="<?php echo $consentGiven ?>" id="consentGiven" class="form-control">
+                                                    </div>
+                                                    <div class="col-sm-3">
+                                                        <strong>House Officers Signature</strong>
+                                                        <input type="text" name="hos" value="<?php echo $hos ?>" id="hos" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <?php
+                                                }
+                                                ?>
+
+
+
+
+
+                                                <!--      <h5>Subjective</h5>
+                                                      <textarea class="form-control" name="subjective" rows="5"></textarea>
+
+                                                      <h5>Objective</h5>
+                                                      <textarea class="form-control" name="objective" rows="5"></textarea>
+
+                                                      <h5>Assessment</h5>
+                                                      <textarea class="form-control" name="assessment" rows="5"></textarea>
+
+                                                      <h5>Plan</h5>
+                                                      <textarea class="form-control" name="plan" rows="5"></textarea>-->
+
+                                                <input type="submit" name="save_note" value="Save " class="btn-lg btn-success" />
+
+                                            </form>
+
+
+
+                                        </div>
+
+                                        <div class="tab-pane" id="ClinicalHistory">
+
+                                            <?php include("../consult/patientHistory.php"); ?>
+
+
+                                        </div>
+
+                                        <div class="tab-pane" id="LaboratorySecond">
+
+
+                                            <div class="row">
+                                                <div class="col-md-7">
+
+                                                    <ul class="nav nav-tabs-new2">
+                                                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#HaematologySecond">Haematology</a></li>
+                                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#ChemicalSecond">Chemical Pathology</a></li>
+                                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#MicrobiologySecond">Microbiology</a></li>
+                                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#HistologySecond">Histology</a></li>
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane show active" id="HaematologySecond">
+
+                                                            <h5>Haematology</h5>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Name Of Investigation</th>
+                                                                        <!--  <th>Reference</th>-->
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="testItemsSecond">
+                                                                    <?php // $revs = Test::find_all();
+                                                                    $revs = Test::find_all_by_unit_id(1);
+                                                                    foreach ($revs as $rev) { ?>
+                                                                        <tr data-id="<?php echo $rev->revenueHead_id; ?>">
+                                                                            <td>
+                                                                                <div class="checkbox">
+                                                                                    <label>
+                                                                                        <input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                            </td>
+                                                                            <!-- <td><?php /*echo $rev->reference */ ?></td>-->
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
+
+                                                        </div>
+                                                        <div class="tab-pane" id="ChemicalSecond">
+
+                                                            <h5>Chemical Pathology</h5>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Name Of Investigation</th>
+                                                                        <!-- <th>Reference</th>-->
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="chemItemsSecond">
+                                                                    <?php // $revs = Test::find_all();
+                                                                    $revs = Test::find_all_by_unit_id(2);
+                                                                    foreach ($revs as $rev) { ?>
+                                                                        <tr data-id="<?php echo $rev->revenueHead_id; ?>">
+                                                                            <td>
+                                                                                <div class="checkbox"><label><input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                            </td>
+                                                                            <!--  <td><?php /*echo $rev->reference */ ?></td>-->
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="tab-pane" id="MicrobiologySecond">
+
+                                                            <h5> Microbiology </h5>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Name Of Investigation</th>
+
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="microItemsSecond">
+                                                                    <?php // $revs = Test::find_all();
+                                                                    $revs = Test::find_all_by_unit_id(3);
+                                                                    foreach ($revs as $rev) { ?>
+                                                                        <tr data-id="<?php echo $rev->revenueHead_id; ?>">
+                                                                            <td>
+                                                                                <div class="checkbox"><label><input type="checkbox" class="add_to_bill_second_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                            </td>
+
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="tab-pane" id="HistologySecond">
+
+                                                            <h5> Histology </h5>
+
+
                                                         </div>
 
                                                     </div>
 
-                                                    <div class="tab-pane" id="Appointment">
-                                                        <h6>Book Appointment</h6>
 
-                                                        <div class="row clearfix">
+                                                </div>
+                                                <div class="col-md-5 bill" id="testCheckSecond">
 
-                                                            <div class="col-sm-6">
+                                                </div>
+                                            </div>
 
-                                                                <form action="" method="post">
-                                                                    <div class="form-group">
-                                                                        <!-- <label>Select Date</label>-->
-                                                                        <div class="input-group ">
-                                                                            <span class="input-group-addon"></span>
-                                                                            <input type="text" name="next_app" value="" class="form-control">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-group">
-                                                                        <label>Hospital Clinic</label>
-                                                                        <select class="form-control" id="clinic_id" name="clinic_id" required>
-                                                                            <option value="">--Select Clinic--</option>
-                                                                            <?php
-                                                                            $finds = Clinic::find_all();
-                                                                            foreach ($finds as $find) { ?>
-                                                                                <option value="<?php echo $find->id; ?>"><?php echo $find->name; ?></option>
-                                                                            <?php } ?>
-                                                                        </select>
-                                                                    </div>
 
-                                                                    <div class="form-group">
-                                                                        <label>Sub-Clinic</label>
-                                                                        <div id="sub_clinic_id">
+                                        </div>
 
-                                                                        </div>
-                                                                    </div>
-                                                                    <button type="submit" name="save_appointment" class="btn btn-lg btn-primary">Save Appointment</button>
-                                                                </form>
+                                        <div class="tab-pane" id="RadiologySecond">
 
+
+                                            <div class="row">
+                                                <div class="col-md-7">
+
+                                                    <ul class="nav nav-tabs-new2">
+                                                        <li class="nav-item"><a class="nav-link active show" data-toggle="tab" href="#Home-new2Second">Radiology</a></li>
+                                                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Profile-new2Second"> Ultrasound Scan </a></li>
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane show active" id="Home-new2Second">
+
+                                                            <h5>Radiology</h5>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Name Of Investigation</th>
+
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="radioItems">
+                                                                    <?php // $revs = Test::find_all();
+                                                                    $revs = Test::find_all_by_unit_id(4);
+                                                                    foreach ($revs as $rev) { ?>
+                                                                        <tr data-id="<?php echo $rev->revenueHead_id; ?>">
+                                                                            <td>
+                                                                                <div class="checkbox"><label><input type="checkbox" class="add_to_bill_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                            </td>
+
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
 
-                                                            <div class="col-sm-6">
+                                                        </div>
+                                                        <div class="tab-pane" id="Profile-new2Second">
+
+                                                            <h5> Ultrasound Scan </h5>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>Name Of Investigation</th>
+
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="scanItems">
+                                                                    <?php // $revs = Test::find_all();
+                                                                    $revs = Test::find_all_by_unit_id(5);
+                                                                    foreach ($revs as $rev) { ?>
+                                                                        <tr data-id="<?php echo $rev->revenueHead_id; ?>">
+                                                                            <td>
+                                                                                <div class="checkbox"><label><input type="checkbox" class="add_to_bill_consultant" value="" data-id="<?php echo $rev->id; ?>"><?php echo $rev->name; ?>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                            </td>
+
+                                                                        </tr>
+                                                                    <?php } ?>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
 
                                                         </div>
                                                     </div>
 
-                                                    <div class="tab-pane" id="Refer">
-                                                        <h5>Refer To Other Clinic</h5>
 
-                                                        <div class="row clearfix">
-                                                            <div class="col-lg-6 col-md-6 col-sm-6 ">
-                                                                <!--   <h6>Refer patient to Other Clinics</h6>  -->
+                                                </div>
+                                                <div class="col-md-5 bill" id="scanCheck">
 
-                                                                <form action="" method="post">
-                                                                    <div class="form-group">
-                                                                        <label>Hospital Clinic</label>
-                                                                        <select class="form-control" id="clinic_id" name="clinic_id" required>
-                                                                            <option value="">--Select Clinic--</option>
-                                                                            <?php
-                                                                            $finds = Clinic::find_all();
-                                                                            foreach ($finds as $find) { ?>
-                                                                                <option value="<?php echo $find->id; ?>"><?php echo $find->name; ?></option>
-                                                                            <?php } ?>
-                                                                        </select>
-                                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                                    <div class="form-group">
-                                                                        <label>Sub-Clinic</label>
-                                                                        <div id="sub_clinic_id">
+                                        </div>
 
-                                                                        </div>
-                                                                    </div>
+                                        <div class="tab-pane" id="DrugSecond">
 
-                                                                    <div class="form-group">
-                                                                        <label>Note to clinic</label>
-                                                                        <textarea class='form-control' rows='5' cols='70' placeholder='Notes' name='clinic_note'></textarea>
-                                                                    </div>
+                                            <div class="row clearfix">
 
-                                                                    <div class="form-group">
-                                                                        <button type="submit" name="refer_patient" class="btn btn-success"> Refer Patient </button>
-                                                                    </div>
+                                                <div class="col-sm-5">
+                                                    <h5> Prescribe Drugs For Patient </h5>
+                                                    <form id="formSearch">
+                                                        <div class=" form-group">
+                                                            <input type="text" placeholder="Name Of Drug" name="txtProduct" id="txtProduct" autocomplete="off" class="typeahead" />
 
-                                                                </form>
-
-
-                                                            </div>
-
-                                                            <div class="col-lg-6 col-md-6 col-sm-6 ">
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="tab-pane" id="SymptomChecker">
-                                                        <?php  include("symptom_checker.php"); ?>
-                                                    </div>
-
-                                                    <div class="tab-pane" id="DischargePatient">
-                                                        <h5>Discharge Patient</h5>
-                                                    </div>
-
-
-
-
-
-
-                                                    <div class="tab-pane table-responsive" id="VitalHistory">
-
-                                                    </div>
-
-                                                    <div class="tab-pane" id="LabHistoryTwo">
-                                                        <h2>Clinical History 2</h2>
-                                                        <?php include('clinic_history.php')
-                                                        ?>
-
-                                                    </div>
-
-                                                    <div class="tab-pane" id="SOAPHistory">
-
-                                                        <h5>Medical History</h5>
-
-                                                        <div class="alert alert-info alert-dismissible" role="alert">
-                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                                            <button type="submit" id="submit" class="btn btn-lg btn-info" data-loading-text="Searching...">Search
                                                             </button>
-                                                            <i class="fa fa-info-circle"></i> Most recent Patient's Medical History
+                                                        </div>
+                                                    </form>
+                                                </div>
+
+                                                <div class="col-sm-7" id="save_page">
+                                                    <?php
+                                                    //  echo PatientBill::save_page();
+                                                    ?>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="tab-pane" id="Appointment">
+                                            <h6>Book Appointment</h6>
+
+                                            <div class="row clearfix">
+
+                                                <div class="col-sm-6">
+
+                                                    <form action="" method="post">
+                                                        <div class="form-group">
+                                                            <!-- <label>Select Date</label>-->
+                                                            <!--<div class="input-group ">
+                                                                <span class="input-group-addon"></span>
+                                                                <input type="date" name="" value="" class="form-control">
+                                                            </div>-->
+                                                            <!-- --><?php
+                                                            /*                                                                        $calendar = new Calendar();
+                                                                                                                                    echo $calendar->show();
+                                                                                                                                    */?>
+                                                            <div class="input-group ">
+                                                                <span class="input-group-addon"></span>
+                                                                <input type="text" name="next_app" value="" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Hospital Clinic</label>
+                                                            <select class="form-control" id="clinic_id" name="clinic_id" required>
+                                                                <option value="">--Select Clinic--</option>
+                                                                <?php
+                                                                $finds = Clinic::find_all();
+                                                                foreach ($finds as $find) { ?>
+                                                                    <option value="<?php echo $find->id; ?>"><?php echo $find->name; ?></option>
+                                                                <?php } ?>
+                                                            </select>
                                                         </div>
 
-                                                        <div id="accordion">
-                                                            <?php
-                                                            $vitals = Vitals::find_by_patient_vitals($patient->id);
-                                                            $caseNotes = CaseNote::find_patient_case_note($patient->id);
-                                                            foreach ($caseNotes as $caseNote) {
+                                                        <div class="form-group">
+                                                            <label>Sub-Clinic</label>
+                                                            <div id="sub_clinic_id">
+
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" name="save_appointment" class="btn btn-lg btn-primary">Save Appointment</button>
+                                                    </form>
+
+                                                </div>
+
+                                                <div class="col-sm-6">
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane" id="Transfer">
+                                            <h5>Transfer</h5>
+                                            <div class="row clearfix">
+                                                <div class="col-lg-6 col-md-6 col-sm-6 ">
+                                                    <form action="" method="post">
+                                                        <div class="form-group">
+                                                            <!--                                                                        <label>Transfer</label>-->
+                                                            <select class="form-control" id="transfer_to" name="transfer_to" required>
+                                                                <option value=""></option>
+                                                                <option value="SURGERY">Theatre</option>
+                                                                <option value="ICU">ICU</option>
+                                                                <?php
+                                                                $ward = "ICU";
+                                                                $wardName = Wards::find_by_id($admDetail->ward_no);
+                                                                if ($wardName->ward_number == $ward){
+                                                                    ?>
+                                                                <option value="Ward">Ward</option>
+                                                                <?php
+                                                                }
                                                                 ?>
+                                                                <option value="MORGUE">MORGUE</option>
+                                                            </select>
+                                                        </div>
 
-                                                                <div class="card">
-                                                                    <div class="card-header">
-                                                                        <a class="card-link" data-toggle="collapse" href="#collapse<?php echo $caseNote->id; ?>">
-                                                                            <?php $d_date = date('d/m/Y h:i a', strtotime($caseNote->date));
-                                                                            echo $d_date ?>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div id="collapse<?php echo $caseNote->id; ?>" class="collapse" data-parent="#accordion">
-                                                                        <div class="card-body">
+                                                        <div class="form-group">
+                                                            <label>Transfer Notes</label>
+                                                            <textarea class='form-control' rows='5' cols='70' placeholder='Notes' name='transfer_note'></textarea>
+                                                        </div>
 
-                                                                            <div class="row">
-                                                                                <div class="col-md-12">
-                                                                                    <div class="table-responsive">
+                                                        <div class="form-group">
+                                                            <button type="submit" name="transfer_patient" class="btn btn-success"> Transfer Patient </button>
+                                                        </div>
 
-                                                                                        <div class="form-group row">
-
-                                                                                            <div class="offset-sm-1 col-sm-11">
-                                                                                                <table>
-                                                                                                    <tr>
-                                                                                                        <th>Complains</th>
-                                                                                                        <td style="padding-left: 100px"><?php $decoded = json_decode($caseNote->complains);
-                                                                                                                foreach ($decoded as $d){
-                                                                                                                  echo $d . ", ";
-                                                                                                                }
-                                                                                                            ?>
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th>History Of Presenting Complains</th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->hpc ?></td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th>Duration</th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->duration ?></td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th>Systemic Review</th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->sys_review ?></td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th>Examinations</th>
-                                                                                                        <td style="padding-left: 100px"><?php $decoded = json_decode($caseNote->examination);
-                                                                                                            foreach ($decoded as $d){
-                                                                                                                echo $d . ", ";
-                                                                                                            }
-                                                                                                            ?>
-                                                                                                        </td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th> Diagnosis </th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->diagnosis ?></td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th> Differentials </th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->differentials ?></td>
-                                                                                                    </tr>
-                                                                                                    <tr>
-                                                                                                        <th> Notes </th>
-                                                                                                        <td style="padding-left: 100px"><?php echo $caseNote->note ?></td>
-                                                                                                    </tr>
-                                                                                                </table>
+                                                    </form>
 
 
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 col-sm-6 ">
+                                                </div>
+
+                                            </div>
+                                        </div>
 
 
-                                                                                            </div>
+                                        <div class="tab-pane" id="Refer">
+                                            <h5>Refer To Other Clinic</h5>
 
-                                                                                        </div>
+                                            <div class="row clearfix">
+                                                <div class="col-lg-6 col-md-6 col-sm-6 ">
+                                                    <!--   <h6>Refer patient to Other Clinics</h6>  -->
 
-                                                                               <!--         <table class="table table-bordered">
+                                                    <form action="" method="post">
+                                                        <div class="form-group">
+                                                            <label>Hospital Clinic</label>
+                                                            <select class="form-control" id="clinic_id" name="clinic_id" required>
+                                                                <option value="">--Select Clinic--</option>
+                                                                <?php
+                                                                $finds = Clinic::find_all();
+                                                                foreach ($finds as $find) { ?>
+                                                                    <option value="<?php echo $find->id; ?>"><?php echo $find->name; ?></option>
+                                                                <?php } ?>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Sub-Clinic</label>
+                                                            <div id="sub_clinic_id">
+
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Note to clinic</label>
+                                                            <textarea class='form-control' rows='5' cols='70' placeholder='Notes' name='clinic_note'></textarea>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <button type="submit" name="refer_patient" class="btn btn-success"> Refer Patient </button>
+                                                        </div>
+
+                                                    </form>
+
+
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 col-sm-6 ">
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane" id="SymptomChecker">
+                                            <?php  include("symptom_checker.php"); ?>
+                                        </div>
+
+                                        <div class="tab-pane" id="DischargePatient">
+                                            <h5>Discharge Patient</h5>
+                                        </div>
+
+
+
+
+
+
+                                        <div class="tab-pane table-responsive" id="VitalHistory">
+
+                                        </div>
+
+                                        <div class="tab-pane" id="LabHistoryTwo">
+                                            <h2>Clinical History 2</h2>
+                                            <?php include('clinic_history.php')
+                                            ?>
+
+                                        </div>
+
+                                        <div class="tab-pane" id="SOAPHistory">
+
+                                            <h5>Medical History</h5>
+
+                                            <div class="alert alert-info alert-dismissible" role="alert">
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <i class="fa fa-info-circle"></i> Most recent Patient's Medical History
+                                            </div>
+
+                                            <div id="accordion">
+                                                <?php
+                                                $vitals = Vitals::find_by_patient_vitals($patient->id);
+                                                $caseNotes = CaseNote::find_patient_case_note($patient->id);
+                                                foreach ($caseNotes as $caseNote) {
+                                                    ?>
+
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <a class="card-link" data-toggle="collapse" href="#collapse<?php echo $caseNote->id; ?>">
+                                                                <?php $d_date = date('d/m/Y h:i a', strtotime($caseNote->date));
+                                                                echo $d_date ?>
+                                                            </a>
+                                                        </div>
+                                                        <div id="collapse<?php echo $caseNote->id; ?>" class="collapse" data-parent="#accordion">
+                                                            <div class="card-body">
+
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="table-responsive">
+
+                                                                            <div class="form-group row">
+
+                                                                                <div class="offset-sm-1 col-sm-11">
+                                                                                    <table>
+                                                                                        <tr>
+                                                                                            <th>Complains</th>
+                                                                                            <td style="padding-left: 100px"><?php $decoded = json_decode($caseNote->complains);
+                                                                                                foreach ($decoded as $d){
+                                                                                                    echo $d . ", ";
+                                                                                                }
+                                                                                                ?>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th>History Of Presenting Complains</th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->hpc ?></td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th>Duration</th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->duration ?></td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th>Systemic Review</th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->sys_review ?></td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th>Examinations</th>
+                                                                                            <td style="padding-left: 100px"><?php $decoded = json_decode($caseNote->examination);
+                                                                                                foreach ($decoded as $d){
+                                                                                                    echo $d->general . ", ";
+                                                                                                }
+                                                                                                ?>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th> Diagnosis </th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->diagnosis ?></td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th> Differentials </th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->differentials ?></td>
+                                                                                        </tr>
+                                                                                        <tr>
+                                                                                            <th> Notes </th>
+                                                                                            <td style="padding-left: 100px"><?php echo $caseNote->note ?></td>
+                                                                                        </tr>
+                                                                                    </table>
+
+
+
+
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                            <!--         <table class="table table-bordered">
                                                                                             <tbody>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->temperature) and (!empty($vital->temperature))) {
-                                                                                                    echo "<th>Temperature</th>";
-                                                                                                    echo "<td> $vital->temperature</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->temperature) and (!empty($vital->temperature))) {
+                                                                                                                                                                                echo "<th>Temperature</th>";
+                                                                                                                                                                                echo "<td> $vital->temperature</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->pulse) and (!empty($vital->pulse))) {
-                                                                                                    echo "<th> Heart Rate(Pulse) </th>";
-                                                                                                    echo "<td> $vital->pulse</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->pulse) and (!empty($vital->pulse))) {
+                                                                                                                                                                                echo "<th> Heart Rate(Pulse) </th>";
+                                                                                                                                                                                echo "<td> $vital->pulse</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->resp_rate) and (!empty($vital->resp_rate))) {
-                                                                                                    echo "<th> Respiratory Rate </th>";
-                                                                                                    echo "<td> $vital->resp_rate</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->resp_rate) and (!empty($vital->resp_rate))) {
+                                                                                                                                                                                echo "<th> Respiratory Rate </th>";
+                                                                                                                                                                                echo "<td> $vital->resp_rate</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->pressure) and (!empty($vital->pressure))) {
-                                                                                                    echo "<th>Blood Pressure</th>";
-                                                                                                    echo "<td> $vital->pressure</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->pressure) and (!empty($vital->pressure))) {
+                                                                                                                                                                                echo "<th>Blood Pressure</th>";
+                                                                                                                                                                                echo "<td> $vital->pressure</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->weight) and (!empty($vital->weight))) {
-                                                                                                    echo "<th> Weight </th>";
-                                                                                                    echo "<td> $vital->weight</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->weight) and (!empty($vital->weight))) {
+                                                                                                                                                                                echo "<th> Weight </th>";
+                                                                                                                                                                                echo "<td> $vital->weight</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->height) and (!empty($vital->height))) {
-                                                                                                    echo "<th> Height </th>";
-                                                                                                    echo "<td> $vital->height</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->height) and (!empty($vital->height))) {
+                                                                                                                                                                                echo "<th> Height </th>";
+                                                                                                                                                                                echo "<td> $vital->height</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->pain) and (!empty($vital->pain))) {
-                                                                                                    echo "<th> Pain </th>";
-                                                                                                    echo "<td> $vital->pain</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->pain) and (!empty($vital->pain))) {
+                                                                                                                                                                                echo "<th> Pain </th>";
+                                                                                                                                                                                echo "<td> $vital->pain</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->urinalysis) and (!empty($vital->urinalysis))) {
-                                                                                                    echo "<th> Urinalysis </th>";
-                                                                                                    echo "<td> $vital->urinalysis</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->urinalysis) and (!empty($vital->urinalysis))) {
+                                                                                                                                                                                echo "<th> Urinalysis </th>";
+                                                                                                                                                                                echo "<td> $vital->urinalysis</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
 
                                                                                             <tr>
                                                                                                 <?php
-/*                                                                                                if (isset($vital->rbs) and (!empty($vital->rbs))) {
-                                                                                                    echo "<th> RBS </th>";
-                                                                                                    echo "<td> $vital->rbs</td>";
-                                                                                                }
-                                                                                                */?>
+                                                                            /*                                                                                                if (isset($vital->rbs) and (!empty($vital->rbs))) {
+                                                                                                                                                                                echo "<th> RBS </th>";
+                                                                                                                                                                                echo "<td> $vital->rbs</td>";
+                                                                                                                                                                            }
+                                                                                                                                                                            */?>
                                                                                             </tr>
 
                                                                                             </tbody>
                                                                                         </table>-->
 
-                                                                                        <p class="text-info" style="font-size: larger"><code></code>
-                                                                                             Done
-                                                                                            By <?php echo $caseNote->consultant ?>
-                                                                                        </p>
+                                                                            <p class="text-info" style="font-size: larger"><code></code>
+                                                                                Done
+                                                                                By <?php echo $caseNote->consultant ?>
+                                                                            </p>
 
-
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
 
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            <?php } ?>
 
+                                                            </div>
                                                         </div>
-
-
-
                                                     </div>
-
-
-
-
-
-
-
-
-
-                                                </div>
-
-
-
-
+                                                <?php } ?>
 
                                             </div>
 
+
+
                                         </div>
+
+
+
+
 
 
 
@@ -2162,9 +2783,23 @@ require '../layout/header.php';
 
                                     </div>
 
+
+
+
+
                                 </div>
+
                             </div>
+
+
+
+
+
                         </div>
+
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -2244,7 +2879,7 @@ require '../layout/header.php';
     <input type="hidden" id="lastPaymentId" />
 
     <?php
-    require '../layout/footer.php';
+    require ('../layout/footer.php');
     ?>
 
 
@@ -2327,8 +2962,8 @@ require '../layout/header.php';
             $('#testItems').on('click', '.add_to_bill_second_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/test_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#testCheck").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2338,8 +2973,8 @@ require '../layout/header.php';
             $('#testItemsSecond').on('click', '.add_to_bill_second_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/test_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#testCheckSecond").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2349,8 +2984,8 @@ require '../layout/header.php';
             $('#radioItems').on('click', '.add_to_bill_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/scan_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#scanCheck").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2360,8 +2995,8 @@ require '../layout/header.php';
             $('#scanItems').on('click', '.add_to_bill_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/scan_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#scanCheck").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2371,8 +3006,8 @@ require '../layout/header.php';
             $('#chemItemsSecond').on('click', '.add_to_bill_second_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/test_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#testCheckSecond").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2382,8 +3017,8 @@ require '../layout/header.php';
             $('#microItemsSecond').on('click', '.add_to_bill_second_consultant', function() {
                 var id = $(this).data('id');
                 $.post('../consultant/test_bill.php?id=' + id + ($(this)[0].checked ? '' : '&action=delete'), {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#testCheckSecond").html(data.bill);
                         //   $("#bill_count").html(data.items_count);
@@ -2476,8 +3111,8 @@ require '../layout/header.php';
 
             function modify_tests(id, param, element) {
                 $.post('test_bill.php?' + (param || '') + 'id=' + id, {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#cart_count").html(data.items_count);
                         $("#testCheckSecond").html(data.bill);
@@ -2490,8 +3125,8 @@ require '../layout/header.php';
 
             function modify_scans(id, param, element) {
                 $.post('scan_bill.php?' + (param || '') + 'id=' + id, {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#scanCheck").html(data.bill);
                         //element && $(element).focus().setCursorToEnd();
@@ -2503,8 +3138,8 @@ require '../layout/header.php';
 
             function modify_cart(id, param, element) {
                 $.post('my_bill.php?' + (param || '') + 'id=' + id, {
-                        id: id
-                    })
+                    id: id
+                })
                     .done(function(data) {
                         $("#cart_count").html(data.items_count);
                         $("#check").html(data.bill);
@@ -2783,7 +3418,7 @@ require '../layout/header.php';
                 //alert(counterQues);
                 if (counterQues == 0) {
                     $(".page-loader-wrapper").fadeIn();
-                    //Call first Question 
+                    //Call first Question
                     $.ajax({
                         url: "../symptom_checker/API.php",
                         data: {
@@ -3222,6 +3857,13 @@ require '../layout/header.php';
             }
 
         }
+    </script>
+
+    <script>
+        $(".diagnosis").select2({
+            tags: true,
+            placeholder: "Select Diagnosis",
+        });
     </script>
 
 

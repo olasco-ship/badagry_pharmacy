@@ -83,7 +83,7 @@ if (is_post()) {
             }
             PatientBill::clear_all_bill();
             $session->message("Prescription has been done for this patient");
-            redirect_to("patient_detail.php?id=$ref->id");
+            redirect_to("patient_detail_admitted.php?id=$ref->id");
         }
 
    }

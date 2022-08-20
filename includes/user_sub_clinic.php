@@ -41,6 +41,11 @@ class UserSubClinic extends DatabaseObject
         return !empty($result_array) ? array_shift($result_array) : FALSE;
     }
 
+    public static function find_by_user_clinic_and_subClinic_id($user_id, $clinic_id, $subClinic_id){
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE user_id= $user_id AND clinic_id = '$clinic_id' AND sub_clinic_id != '$subClinic_id' " );
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
+    }
+
     public static function create_table()
     {
         $sql = 'CREATE TABLE IF NOT EXISTS ' . UserSubClinic::$table_name . '(' .

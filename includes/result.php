@@ -16,7 +16,7 @@ class Result extends DatabaseObject
     protected static $db_fields = array('id', 'exempted_by', 'sync', 'lab_no', 'bill_id','patient_id', 'labWalkIn_id', 'waiting_list_id',
          'test_request_id', 'ward', 'clinic', 'doctor', 'consultant',  'test', 'specimen', 'specimen_condition', 'other_specimen', 'date_col',
         'date_rec', 'time_col', 'time_rec', 'sample_col_by', 'sample_rec_by', 'doctor_note', 'scientist_note', 'path_note',
-        'dept', 'unit', 'resultData', 'scientist', 'pathologist', 'qc', 'qc_officer', 'qc_date', 'status', 'date');
+        'dept', 'unit', 'resultData', 'refRangeUnit', 'anti_one', 'scientist', 'pathologist', 'qc', 'qc_officer', 'qc_date', 'status', 'date');
 
 
     public $id;
@@ -47,6 +47,8 @@ class Result extends DatabaseObject
     public $dept;
     public $unit;
     public $resultData;
+    public $refRangeUnit;
+    public $anti_one;
     public $scientist;
     public $pathologist;
     public $qc;
@@ -65,6 +67,12 @@ class Result extends DatabaseObject
 
     public static function find_by_test_request_id($test_request_id=0){
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE test_request_id = $test_request_id  " );
+    }
+
+    public static function find_patient_test($dept, $wait_id){
+        $sql = "SELECT * FROM " .static::$table_name. " WHERE dept = '$dept' AND waiting_list_id = $wait_id  ORDER BY date DESC LIMIT 1";
+        $result_array = Result::find_by_sql($sql);
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
     }
 
     public static function find_by_test_request($id=0){
@@ -221,6 +229,8 @@ class Result extends DatabaseObject
             'dept VARCHAR(50) NOT NULL, ' .
             'unit VARCHAR(50) NOT NULL, ' .
             'resultData TEXT NOT NULL, ' .
+            'refRangeUnit TEXT NOT NULL, ' .
+            'anti_one TEXT, ' .
             'scientist VARCHAR(50) NOT NULL, ' .
             'pathologist VARCHAR(50) NOT NULL, ' .
             'qc TEXT NOT NULL, ' .

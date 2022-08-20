@@ -134,7 +134,47 @@
                 }) : $('#sub_clinic_id').html("");
         });
 
+        /*$('#examination_cat_id').change(function () {
+            let selectedOption = $('#examination_cat_id option:selected');
+            console.log(selectedOption);
+            selectedOption.val() ?
+                $.post('exam_cat.php', {value: selectedOption.val()}, function (data) {
+                    $('#examination_id').html(data.trim());
+                }) : $('#examination_id').html("");
+        });*/
 
+        $('#examination_cat_id').change(function () {
+            getSymptoms($('#examination_cat_id option:selected'));
+            // let selectedOption = $('#examination_cat_id option:selected');
+            // var count = 0;
+            // console.log(selectedOption);
+            // selectedOption.each(function (){
+            //         selectedOption.val() ?
+            //             $.post('exam_cat.php', {value: selectedOption.val()}, function (data) {
+            //                 $('#examination_id').html(data.trim());
+            //             }) : $('#examination_id').html("");
+            // });
+        });
+
+        function getSymptoms(id) {
+            // var e = document.getElementById("examination_cat_id");
+            // var strUser = e.value;
+            // console.log(id);
+            $('#examination_id').html("");
+            for (let i=0; i<id.length; i++){
+                // console.log(id[i].value)
+                $.post('exam_cat.php', {value: id[i].value}, function (data) {
+                    $('#examination_id').html(data.trim());
+                })
+            }
+
+            // id.each(function (){
+            //         selectedOption.val() ?
+            //             $.post('exam_cat.php', {value: selectedOption.val()}, function (data) {
+            //                 $('#examination_id').html(data.trim());
+            //             }) : $('#examination_id').html("");
+            // });
+        }
 
 
 
@@ -700,15 +740,119 @@
 
 
 
+    });
 
+    $(document).ready(function(){
 
+        // Delete
+        $('.delete').click(function(){
+            var el = this;
 
+            // Delete id
+            var deleteid = $(this).data('id');
 
+            var confirmalert = confirm("Are you sure?");
+            if (confirmalert === true) {
+                // AJAX Request
+                $.ajax({
+                    url: 'remove.php',
+                    type: 'POST',
+                    data: { id:deleteid },
+                    success: function(response){
+                        if(response === 1){
+                            // Remove row from HTML Table
+                            $(el).closest('tr').css('background','tomato');
+                            $(el).closest('tr').fadeOut(800,function(){
+                                $(this).remove();
+                            });
+                        }
+                        location.reload();
+                        /*else{
+                            alert('Invalid ID.');
+                        }*/
 
+                    }
+                });
+            }
 
+        });
 
     });
 
+
+    $(document).ready(function(){
+
+        // Delete
+        $('.deleteTest').click(function(){
+            var el = this;
+
+            // Delete id
+            var deleteTestId = $(this).data('id');
+
+            var confirmDeleteAlert = confirm("Are you sure?");
+            if (confirmDeleteAlert === true) {
+                // AJAX Request
+                $.ajax({
+                    url: 'removeTest.php',
+                    type: 'POST',
+                    data: { id:deleteTestId },
+                    success: function(response){
+                        if(response === 1){
+                            // Remove row from HTML Table
+                            $(el).closest('tr').css('background','tomato');
+                            $(el).closest('tr').fadeOut(800,function(){
+                                $(this).remove();
+                            });
+                        }
+                        location.reload();
+                        /*else{
+                            alert('Invalid ID.');
+                        }*/
+
+                    }
+                });
+            }
+
+        });
+
+    });
+
+    $(document).ready(function(){
+
+        // Delete
+        $('.deleteScan').click(function(){
+            var el = this;
+
+            // Delete id
+            var deleteScanId = $(this).data('id');
+
+            var confirmDeleteAlert = confirm("Are you sure?");
+            if (confirmDeleteAlert === true) {
+                // AJAX Request
+                $.ajax({
+                    url: 'removeScan.php',
+                    type: 'POST',
+                    data: { id:deleteScanId },
+                    success: function(response){
+                        if(response === 1){
+                            // Remove row from HTML Table
+                            $(el).closest('tr').css('background','tomato');
+                            $(el).closest('tr').fadeOut(800,function(){
+                                $(this).remove();
+                            });
+                        }
+                        location.reload();
+                        /*else{
+                            alert('Invalid ID.');
+                        }*/
+
+                    }
+                });
+            }
+
+        });
+
+    });
 
     // validation needs name of the element
     //$('#food').multiselect();

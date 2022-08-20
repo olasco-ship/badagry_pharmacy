@@ -125,6 +125,11 @@ require_once ('stock_service.php');
 require_once ('item_store_station.php');
 require_once ('transfer.php');
 require_once ('used_item.php');
+require_once ('ReferenceRange.php');
+require_once ('Calendar.php');
+require_once ('SurgeryAppointment.php');
+require_once('MedicalReports.php');
+require_once ('PatientTransfer.php');
 
 /*
 

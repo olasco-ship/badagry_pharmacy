@@ -39,6 +39,7 @@
 
     <link rel="stylesheet" href="<?php echo emr_lucid ?>/assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.min.css">
     <link rel="stylesheet" href="<?php echo emr_lucid ?>/assets/multiselect/css/select2.min.css">
+<!--    <link rel="stylesheet" href="--><?php //echo emr_lucid ?><!--/assets/multiselect/css/calendar.css">-->
 
     <style>
         .typeahead {
@@ -239,64 +240,6 @@
                                 <ul class="main-menu metismenu">
                                     <li class="active"><a href="<?php echo emr_lucid ?>/home.php"><i class="icon-home"></i><span>Dashboard</span></a></li>
 
-                                    <?php
-                                    if (($user->department == 'Medical Records') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/patient/home.php"><i class="icon-notebook"></i><font size="4">Medical Records</font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li> <a href="#"> <i class="icon-notebook"></i>Medical Records </a> </li>-->
-                                    <?php } ?>
-
-
-                                    <?php
-                                    if (($user->department == 'Nursing') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/nursing/home.php"><i class="icon-heart"></i><font size="4">Nursing Department</font> </a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-heart"></i>Nursing Department </a></li>-->
-                                    <?php }  ?>
-
-
-                                    <?php
-                                    if (($user->department == 'Consultancy') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/consultant/index.php"><i class="icon-globe"></i><font size="4">GP Consultation</font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-globe"></i>GP Consultation</a></li>-->
-                                    <?php }  ?>
-
-
-                                    <?php
-                                    if (($user->department == 'Account') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/revenue/home.php"><i class="icon-wallet"></i><font size="4">Account & Revenue</font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-wallet"></i> Account & Revenue </a></li>-->
-                                    <?php }   ?>
-
-                                    <?php
-                                    if (($user->department == 'Audit') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/audit/home.php"><i class="icon-wallet"></i><font size="4"> Audit </font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-wallet"></i>  Audit </a></li>-->
-                                    <?php }   ?>
-
-
-                                    <?php
-                                    if (($user->department == 'NHIS') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/nhis/home.php"><i class="icon-wallet"></i><font size="4"> NHIS </font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-wallet"></i> NHIS </a></li>-->
-                                    <?php }   ?>
-
 
                                     <?php
                                     if (($user->department == 'Pharmacy') || ($user->role == 'Super Admin')) {
@@ -310,104 +253,8 @@
                                         </li>
                                     <?php } else {
                                         ?>
-                                        <!--                                        <li><a href="javascript:void(0);" class="has-arrow"><i class="icon-drawer"></i><span> Pharmacy </span> </a>-->
-                                        <!--                                        </li>-->
+
                                     <?php } ?>
-
-
-                                    <?php
-                                    if (($user->department == 'Laboratory') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/lab/home.php"><i class="icon-bulb"></i>Laboratory Department</a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-bulb"></i>Laboratory Department</a></li>-->
-                                    <?php } ?>
-
-
-
-                                    <?php
-                                    if (($user->department == 'Radiology/Scan') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/rad/home.php"><i class="icon-camera"></i><font size="4">Radiology/Scan</font> </a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-camera"></i>Radiology/Scan </a></li>-->
-                                    <?php } ?>
-
-                                    <?php
-                                    if (($user->department == 'Payment') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/payment/home.php"><i class="icon-wallet"></i>Payment Confirmation</a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-wallet"></i>Payment Confirmation</a></li>-->
-                                    <?php } ?>
-
-
-                                    <?php
-                                    if (($user->department == 'ICT') || ($user->role == 'Super Admin')) {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/ict/home.php"><i class="icon-wallet"></i><font size="4"> ICT </font></a></li>
-                                    <?php } else {
-                                        ?>
-                                        <!--                                        <li><a href="#"><i class="icon-wallet"></i> ICT </a></li>-->
-                                    <?php } ?>
-
-                                  <!--  <?php
-/*                                    if (($user->department == 'Store') || ($user->role == 'Super Admin')) {
-                                        */?>
-                                        <li><a href="<?php /*echo emr_lucid */?>/store/storage.php"><i class="icon-wallet"></i> Stores </a></li>
-                                    <?php /*} else {
-                                        */?>
-                                                                              <li><a href="#"><i class="icon-wallet"></i> Stores </a></li>
-                                    --><?php /*} */?>
-
-
-                                    <?php
-                                    if ($user->role == 'Super Admin') {
-                                        ?>
-
-                                        <li><a href="<?php echo emr_lucid ?>/symptom_checker/symptom.php"><i class="icon-bulb"></i>Symptom Checker</a></li>
-
-                                        <li><a href="javascript:void(0);" class="has-arrow"><i class="icon-drawer"></i><span> Symptom
-                                                    <!-- Checker --> Builder </span> </a>
-                                            <ul>
-                                                <li><a href="<?php echo emr_lucid ?>/symptom_checker/body_part/index.php"> Body Part </a></li>
-                                                <li><a href="<?php echo emr_lucid ?>/symptom_checker/symptom/index.php"> Symptom </a></li>
-                                                <li><a href="<?php echo emr_lucid ?>/symptom_checker/question/index.php"> Question </a></li>
-                                                <li><a href="<?php echo emr_lucid ?>/symptom_checker/question/mapping/index.php"> Question Mapping </a></li>
-                                            </ul>
-                                        </li>
-
-                                        <li><a href="<?php echo emr_lucid ?>/servicom/home.php"><i class="icon-wallet"></i>Servicom</a></li>
-
-                                        <li><a href="javascript:void(0);" class="has-arrow"><i class="icon-user-follow"></i><span>User Management</span> </a>
-                                            <ul>
-                                                <li><a href="<?php echo emr_lucid ?>/UserAccount/index.php">All Users</a></li>
-                                                <li><a href="<?php echo emr_lucid ?>/UserAccount/create.php">Add Users</a></li>
-                                                <li><a href="<?php echo emr_lucid ?>/UserAccount/profile.php">User Profile</a></li>
-                                            </ul>
-                                        </li>
-
-                                    <?php }
-                                    ?>
-
-                                    <?php
-                                    if ($user->role == 'Super Admin') {
-                                        ?>
-                                        <li><a href="<?php echo emr_lucid ?>/online/home.php"><i class="icon-wallet"></i> Online</a></li>
-                                    <?php }
-                                    ?>
-
-
-
-
-
-
-
-
-
                                 </ul>
                             </nav>
                         </div>

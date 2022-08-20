@@ -14,6 +14,14 @@ class ExaminationCategory extends DatabaseObject
     public $date;
 
 
+    public static function find_by_name($name){
+        //   global $database;
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE name = '$name' " );
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
+    }
+
+
+
     public static function create_table(){
 
         $sql = 'CREATE TABLE IF NOT EXISTS ' . ExaminationCategory::$table_name . '(' .

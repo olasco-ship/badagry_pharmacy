@@ -8,10 +8,6 @@ if (!$session->is_logged_in()) {
 $user = User::find_by_id($session->user_id);
 
 
-
-
-
-
 require('../layout/header.php');
 ?>
 
@@ -51,7 +47,7 @@ require('../layout/header.php');
 
 
                             <div class="container">
-                                <h2> My Clinics </h2>
+                                <h2> My Departments </h2>
                                 <?php
                                 // echo gethostname() ;
                                 $userSubClinic = UserSubClinic::find_by_users($user->id);

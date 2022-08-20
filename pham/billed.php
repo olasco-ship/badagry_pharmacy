@@ -13,11 +13,42 @@ if (!$session->is_logged_in()) {
     redirect_to(emr_lucid . "/index.php");
 }
 
-
+$user = User::find_by_id($session->user_id);
 
 $billed   = Bill::find_billed_drug();
 
-$services = DrugServices::find_billed(); 
+$services = DrugServices::find_billed();
+
+if (is_post()) {
+    if (isset($_POST['paymentReceipt'])) {
+
+        $id = $_POST['bill_id'];
+
+        $payment_ref = $_POST['auth_code'];
+
+        $payment_bill = Bill::find_by_id($id);
+        $payment_bill->status = "PAID";
+        $payment_bill->receipt = $payment_ref;
+        $payment_bill->payment_officer = $user->full_name();
+
+        if ($payment_bill->save()) {
+
+            if (!empty(DrugRequest::find_by_billed($payment_bill->id))) {
+                $drugs = DrugRequest::find_by_billed($payment_bill->id);
+                $drugService = DrugServices::find_by_bill_id($payment_bill->id);
+                $drugService->status = "CLEARED";
+                $drugService->save();
+                foreach ($drugs as $d) {
+                    $d->receipt = $payment_ref;
+                    $d->save();
+                }
+                $session->message("Payment Reference has been added");
+                redirect_to("billed.php");
+            }
+        }
+
+    }
+}
 
 require('../layout/header.php');
 ?>
@@ -41,9 +72,6 @@ require('../layout/header.php');
                     </div>
                 </div>
             </div>
-
-
-
             <div class="row clearfix">
                 <div class="col-md-12">
                     <div class="card patients-list">
@@ -56,8 +84,6 @@ require('../layout/header.php');
                                 <!--                                <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#USA">USA</a></li>
                                                                 <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#India">India</a></li>-->
                             </ul>
-
-                            <!-- Tab panes -->
                             <div class="tab-content m-t-10 padding-0">
                                 <div class="tab-pane table-responsive active show" id="All">
                                     <table class="table m-b-0 table-hover">
@@ -67,17 +93,17 @@ require('../layout/header.php');
 
                                             <th>Bill No.</th>
                                             <th>Patient Name</th>
-                                       <!--     <th>Investigation(s) No.</th>   -->
                                             <th>Amount</th>
                                             <th>Date &amp; Time</th>
                                             <th>Status</th>
+                                            <th>Pay</th>
 
                                         </tr>
 
                                         </thead>
                                         <tbody>
 
-                                        <?php // foreach($billed as $bill) {  
+                                        <?php
                                             foreach($services as $service) { 
                                                 $bill = Bill::find_by_id($service->bill_id);
                                              ?>
@@ -88,7 +114,10 @@ require('../layout/header.php');
                                                 <td><?php echo "₦$bill->total_price"  ?></td>
                                                 <td><?php $d_date = date('d/m/Y h:i a', strtotime($bill->date)); echo $d_date ?></td>
                                                 <td><span class="badge badge-info">BILLED</span></td>
-                                                <!--  <td><a class='inputReceipt' href='#' data-product-id= <?php /*echo $bill->id */?> >Input Receipt</a></td>-->
+                                                <td><button type="button" class="btn btn-success" data-toggle="modal"
+                                                            data-pre_reg-id="<?php echo $bill->id ?>"
+                                                            data-target="#authenticate">Authenticate
+                                                    </button></td>
                                             </tr>
                                         <?php } ?>
 
@@ -100,57 +129,39 @@ require('../layout/header.php');
                     </div>
                 </div>
             </div>
-
-
-
         </div>
     </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class="modal fade" tabindex="-1" role="dialog" id="input_receipt_modal">
-        <div class="modal-dialog">
-            <!--      <div class="modal-dialog modal-sm">  -->
+    <div class="modal" id="authenticate" tabindex="-1" role="dialog" aria-labelledby="deposit to account">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <!-- <h4 class="modal-title">Modal title</h4> -->
-                    <h4 class="modal-title" id="editProduct"></h4>
+                    <h4 class="title" id="myModalLabel">Authenticate Receipt</h4>
                 </div>
-                <div class="modal-body">
-                    <div id="updateBody"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <!--          <button type="button" class="btn btn-primary" id="editAction">Edit</button>     -->
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+                <form action="billed.php?id=<?php echo $bill->id; ?>" method="post">
+                    <div class="modal-body">
+                        <div id="modalMessages"></div>
 
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="control-label col-md-8"> Payment Reference </label>
+                                <div class="col-md-8">
+                                    <input class="form-control" type="text" name="auth_code"
+                                           placeholder="Enter Payment Reference" required>
 
+                                    <input type="hidden" name="bill_id" value="<?php echo $bill->id; ?>"/>
 
-
-
-
-
-
-
-
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" name="paymentReceipt"> Proceed</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 <?php
-
 require('../layout/footer.php');

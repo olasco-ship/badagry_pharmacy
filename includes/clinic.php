@@ -12,6 +12,16 @@ class Clinic extends DatabaseObject
     public $name;
     public $date;
 
+    public static function order_name(){
+
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " ORDER BY name ASC");
+    }
+
+    public static function find_by_name($dept){
+
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE name = '$dept' ORDER BY name ASC");
+    }
+
     public static function create_table()
     {
         $sql = 'CREATE TABLE IF NOT EXISTS ' . Clinic::$table_name . '(' .

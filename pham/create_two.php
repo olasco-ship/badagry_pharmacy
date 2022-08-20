@@ -233,7 +233,7 @@ require('../layout/header.php');
                                                 <div class="form-group">
                                                     <label for="fileUpload" class="control-label">File Upload(jpg, jpeg, png format is allowed)</label>
                                                     <div style="width: 300px">
-                                                        <input class="form-control" type="file" id="file_upload" name="file_upload" required>
+                                                        <input class="form-control" type="file" id="file_upload" name="file_upload">
                                                     </div>
                                                 </div>
                                             </td>

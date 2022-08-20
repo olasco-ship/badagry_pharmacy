@@ -3,11 +3,18 @@ $(document).ready(function(){
 
     $('.complain_label').select2({
         tags: true,
-        placeholder: "Select  Complains",
+        placeholder: "Select",
+    });
+    $('.complain_drt').select2({
+        tags: true,
+        placeholder: "Select  Durations",
     });
     $('.gen_exam').select2({
         tags: true,
         placeholder: "Select General Examination",
+    });
+    $(".diagnosis").select2({
+        placeholder: "Select Diagnosis",
     });
     $('.icd_sta').select2({
         tags: true,

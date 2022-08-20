@@ -6,7 +6,7 @@ class WaitingList extends DatabaseObject
 {
     protected static $table_name = "waiting_list";
     protected static $db_fields = array('id', 'sync', 'patient_id', 'clinic_id', 'sub_clinic_id',
-    'room_id', 'officer', 'dr_seen', 'vitals', 'wait_status', 'status', 'icd_status', 'date');
+    'room_id', 'officer', 'dr_seen', 'vitals', 'wait_status', 'status', 'icd_status', 'med_reports', 'date');
     public $id;
     public $sync;
     public $patient_id;
@@ -19,6 +19,7 @@ class WaitingList extends DatabaseObject
     public $vitals;
     public $status;
     public $icd_status;
+    public $med_reports;
     public $date; 
 
 
@@ -45,6 +46,12 @@ class WaitingList extends DatabaseObject
 
     public static function find_all_done(){
         return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE status = 'consultation done' ORDER BY date DESC " );
+    }
+
+    public static function find_open_request($patient_id)
+    {
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE patient_id = '{$patient_id}' AND med_reports = 'OPEN' LIMIT 1 " );
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
     }
 
     public static function find_all_by_date($start_date, $end_date){
@@ -144,6 +151,11 @@ class WaitingList extends DatabaseObject
         and wait_status=0 AND date BETWEEN '$starDate' AND '$endDate' ");
     }
 
+    public static function find_all_sopd_waiting_consultation($clinic_id){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE clinic_id = '$clinic_id' AND status = 'consultant' 
+        and wait_status=0 ");
+    }
+
 
     public static function create_table()
     {
@@ -159,6 +171,8 @@ class WaitingList extends DatabaseObject
             'dr_seen VARCHAR(50) NOT NULL, ' .
             'vitals VARCHAR(50) NOT NULL, ' .
             'status VARCHAR(50) NOT NULL, ' .
+            'icd_status VARCHAR(50) NOT NULL, ' .
+            'med_reports VARCHAR(20) NOT NULL, ' .
             'date DATETIME NOT NULL, ' .
             'PRIMARY KEY(id))';
         WaitingList::run_script($sql);

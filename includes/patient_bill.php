@@ -681,6 +681,45 @@ class PatientBill
         //    <td><span data-id='$product->id' class='delete_cart'><i class='glyphicon glyphicon-trash' </span></td>
     }
 
+    public static function exam_symptoms()
+    {
+        $items = static::get_bill();
+
+        if (count($items) == 0)
+            return '<h4>No Examination is Selected! </h4>';
+
+        $text = '<table class="table table-bordered table-condensed table-hover">
+                                <thead>
+                        <tr>
+                            <th>Systemic Examination</th>
+                         
+                            <th>Symptoms</th>
+                            
+                        </tr>
+                        </thead>
+        
+                <tbody>';
+        foreach ($items as $item)
+            $text .= static::get_examination_name($item);
+        $text .= "<tr>
+                </tr>";
+
+
+
+        $text .= '</tbody></table>';
+
+        return $text;
+    }
+
+    protected static function get_examination_name($product)
+    {
+        return "<tr>
+                <td>$product->name</td>
+               
+                <td></td>
+                             
+             </tr>";
+    }
 
 }
 ?>

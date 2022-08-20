@@ -84,6 +84,11 @@ class TestRequest extends DatabaseObject
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE status = 'NA' ORDER BY date DESC" );
     }
 
+    public static function find_returned_test_by_sub_clinic_id($sub_clinic_id)
+    {
+        return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE status = 'RETURNED' AND sub_clinic_id = '$sub_clinic_id' ORDER BY date ASC" );
+    }
+
     public  function find_by_bill_id_by_date($bill_id){
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE bill_id = $bill_id ORDER BY date DESC" );
     }

@@ -75,9 +75,10 @@ require('../layout/header.php');
             <div class="row clearfix">
                 <div class="col-md-12">
                     <div class="card patients-list">
+                        <a href="ipd-admin.php" style="..."> >>Back </a>
                         <div class="body">
                             <div class="col-lg-12 col-md-12">
-                           <form class=" pb-4" action="location.php" method="post">
+                           <form class="pb-4" action="location.php" method="post">
 
                             <div class="form-group row">
                                   <div class="offset-sm-2 col-sm-2 col-3">  <label> Name <span class="text-danger">*</span></label></div>

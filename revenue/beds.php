@@ -100,7 +100,7 @@ if(is_post()){
         $bed->bed_location_id = $_POST['bed_location_id'];
         $bed->ward_id = $_POST['ward_id'];
         $bed->room_number = $_POST['room_number'];
-        $bed->room_number = $_POST['room_number'];
+//        $bed->room_number = $_POST['room_number'];
         $bed->bed_no_to = $_POST['bed_no_to'];
         $bed->bed_no_from = $_POST['bed_no_from'];
         //$ward->save();
@@ -209,6 +209,7 @@ require('../layout/header.php');
             <div class="row clearfix">
                 <div class="col-md-12">
                     <div class="card patients-list">
+                        <a href="ipd-admin.php" style="..."> >>Back </a>
                         <div class="header">
                             <ul class="header-dropdown">
                                 <li><a class="tab_btn" href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Weekly">W</a></li>

@@ -5,7 +5,6 @@
                         <ul class="breadcrumb">
                             <li class="breadcrumb-item"><a href="index.php"><i class="icon-home"></i></a></li>
                             <li class="breadcrumb-item">Location</li>
-
                         </ul>
                     </div>
 

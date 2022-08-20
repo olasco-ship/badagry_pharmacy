@@ -16,8 +16,14 @@ class UserMultiWards extends DatabaseObject
     
 
     public static function find_by_user_id($user_id){
-        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE user_id= $user_id " );
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE user_id= $user_id" );
         return !empty($result_array) ? $result_array : FALSE;
+    }
+
+    public static function find_by_usr_id($user_id=0){
+        global $database;
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE user_id=".$database->escape_value($user_id));
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
     }
 
     public static function create_table()

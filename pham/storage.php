@@ -64,11 +64,11 @@ require('../layout/header.php');
                                 </div>
 
                                 <div class="col-md-3">
-                                    <a href="#">
+                                    <a href="store/index.php">
                                         <div class="body bg-danger text-light">
                                             <h4><i class="icon-wallet"></i>
                                             </h4>
-                                            <span> Donated Drugs </span>
+                                            <span> Stock Count </span>
                                         </div>
                                     </a>
                                 </div>

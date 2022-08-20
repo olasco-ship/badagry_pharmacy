@@ -11,7 +11,7 @@ class Vitals extends DatabaseObject
     public static $table_name = "vitals";
     protected static $db_fields = array('id', 'sync', 'nurse', 'patient_id', 'sub_clinic_id', 'clinic_id', 'waiting_list_id',
      'ref_adm_id', 'emergency_id', 'ward_id', 'temperature',
-    'pulse', 'resp_rate', 'pressure', 'weight', 'height', 'pain', 'urinalysis', 'rbs', 'clinical_vitals', 'comment',
+    'pulse', 'resp_rate', 'pressure', 'weight', 'height', 'pain', 'urinalysis', 'rbs', 'bmi', 'clinical_vitals', 'comment',
         'status', 'date');
     public $id;
     public $sync;
@@ -33,6 +33,7 @@ class Vitals extends DatabaseObject
     public $pain;
     public $urinalysis;
     public $rbs;
+    public $bmi;
     public $clinical_vitals;
     public $comment;
 
@@ -103,6 +104,7 @@ class Vitals extends DatabaseObject
             'pain  VARCHAR(80) NOT NULL, ' .
             'urinalysis VARCHAR(80) NOT NULL, ' .
             'rbs  VARCHAR(80) NOT NULL, ' .
+            'bmi VARCHAR(80) NOT NULL, ' .
             'clinical_vitals TEXT NOT NULL, ' .
             'comment TEXT NOT NULL, ' .
 

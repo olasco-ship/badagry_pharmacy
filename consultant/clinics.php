@@ -42,48 +42,75 @@ require('../layout/header.php');
 
                             <a style="font-size: larger" href="index.php">&laquo;Back</a>
 
-                            <div class="row clearfix">
+<!--                            <div class="row clearfix">-->
                                 <?php
-                                    $clinics = Clinic::find_all();
+                                    $clinics = Clinic::order_name();
                                     $subClinic = SubClinic::find_by_id($user->sub_clinic_id);
                                 ?>
 
+                                <!--<div class="container">
+                                    <h2> Clinical Departments  </h2>
 
-                                <div class="container">
-                                    <h2> Hospital Clinics  </h2>
-                                   <!-- --><?php
-/*                                    echo gethostname() ;
-                                    */?>
-                                    <?php  foreach ($clinics as $clinic) {  ?>
-                                    <ul class="list-group">
-                                        <li class='list-group-item'>
-                                             <a href='#'><?php echo $clinic->name ?></a>
-                                            <!-- <a href='clinic.php?id=<?php  echo $clinic->id ?>'><?php echo $clinic->name ?></a> -->
-                                        </li>
-                                    </ul>
+
+                                </div>-->
+                                <div id="accordion">
+                                    <?php
+                                    foreach ($clinics as $clinic) {
+                                        $sub = SubClinic::find_by_clinic_id($clinic->id);
+                                        ?>
+
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <a class="card-link" data-toggle="collapse"
+                                                   href="#collapse<?php echo $clinic->id; ?>">
+                                                    <?php echo $clinic->name; ?>
+                                                </a>
+                                            </div>
+                                            <div id="collapse<?php echo $clinic->id; ?>"
+                                                 class="collapse" data-parent="#accordion">
+                                                <div class="card-body">
+
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <?php  foreach ($sub as $subs) {  ?>
+                                                            <ul class="">
+                                                                <li>
+                                                                    <?php echo $subs->name ?>
+                                                                </li>
+                                                            </ul>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     <?php } ?>
 
                                 </div>
 
-                            </div>
-
-
-
-
                         </div>
 
-
-
-
-
-
                     </div>
+
+
+
+
                 </div>
+
+
+
+
+
+
             </div>
-
-
         </div>
     </div>
+
+
+<!--        </div>-->
+<!--    </div>-->
 
 
 

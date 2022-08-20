@@ -39,7 +39,7 @@ class Test extends DatabaseObject {
     }
 
     public static function find_all_by_unit_id($unit_id=0){
-        return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE unit_id = $unit_id" );
+        return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE unit_id = $unit_id ORDER BY name ASC" );
     }
     public static function find_all_by_test_id($ids){
         $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE id = $ids");

@@ -168,6 +168,15 @@ require('../layout/header.php');
                                     </a>
                                 </div>
 
+                                <div class="col-md-3">
+                                    <a href="../consultant/dashboard.php">
+                                        <div class="body bg-success text-light">
+                                            <h4><i class="icon-wallet"></i> </h4>
+                                            <span> Prescribe Drug </span>
+                                        </div>
+                                    </a>
+                                </div>
+
                             </div>
                         </div>
 

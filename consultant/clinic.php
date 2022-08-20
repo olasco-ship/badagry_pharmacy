@@ -38,6 +38,8 @@ $countTest     = TestRequest::count_returned_test($clinic->id);
 
 $countScan     = ScanRequest::count_returned_scan($clinic->id);
 
+$countReferral = Referrals::count_by_confirmation();
+
 
 
 
@@ -157,6 +159,37 @@ require('../layout/header.php');
                                                     </div>
                                                 </a>
                                             </div>
+
+                                            <?php
+                                            $userSubClinic = UserSubClinic::find_by_users($user->id);
+                                            foreach ($userSubClinic as $u) {
+                                                $sub = SubClinic::find_by_id($u->sub_clinic_id);
+                                                if ($sub->name == "MENTAL HEALTH"){
+                                            ?>
+                                            <div class="col-md-3">
+                                                <a href="referral_confirmation.php">
+                                                    <div class="body bg-danger text-light">
+                                                        <h4><i class="icon-wallet"></i> <?php echo $countReferral ?></h4>
+                                                        <span>Referrals</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                                <?php
+                                            }
+                                            }
+                                            if ($clinic->name == "GOPD"){
+                                                ?>
+                                            <div class="col-md-3">
+                                                <a href="medical_reports.php?id=<?php echo $clinic->id ?>">
+                                                    <div class="body bg-primary text-light">
+                                                        <h4><i class="icon-wallet"></i> </h4>
+                                                        <span>Medical Reports</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                                <?php
+                                            }
+                                                ?>
                                         </div>
 
                                     </div>

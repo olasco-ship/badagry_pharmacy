@@ -84,8 +84,8 @@ require('../layout/header.php');
                           //  $station_id = trim($_POST['station_id']);
                           //  $pharmStation = PharmacyStation::find_by_id($station_id);
 
-                            $pharmStation = PharmacyStation::find_by_id($sta->id);
-                            echo "<h4>$pharmStation->name </h4>";
+//                            $pharmStation = PharmacyStation::find_by_id($sta->id);
+                            echo "<h4>$sta->name </h4>";
                         }
                         ?>
 

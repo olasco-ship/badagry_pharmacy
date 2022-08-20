@@ -208,7 +208,7 @@ require('../layout/header.php');
 
                     <div class="col-lg-6 col-md-6 col-sm-12">
 
-                        <a style="font-size: larger" href="ret_presc.php">&laquo;Back</a>
+                        <a style="font-size: larger" href="ret_presc.php?id=<?php echo $clinic->id ?>">&laquo;Back</a>
 
                         <form action="" method="post">
 

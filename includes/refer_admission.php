@@ -14,7 +14,7 @@ class ReferAdmission extends DatabaseObject {
     protected static $db_fields = array('id', 'sync', 'patient_id', 'waitList_id', 'Consultantdr', 'adm_date',  'location',
         'ward_no', 'room_no', 'bed_no', 'in_patient_id', 'nurse_id', 'discharge_doct', 'discharge_nurse',
         'm_s', 'adm_purpose', 'ipd_service', 'payment_type', 'add_wall_balance', 'wall_balance', 'remark', 'remark_nurse', 
-        'pat_category','created', "cancel_status", 'refer_status', 'discharge_date', 'settle_status', 'discount_status');
+        'pat_category', 'adm_type', 'created', "cancel_status", 'refer_status', 'discharge_date', 'settle_status', 'discount_status');
 
 
     public $id;
@@ -40,6 +40,7 @@ class ReferAdmission extends DatabaseObject {
     public $remark;
     public $remark_nurse;
     public $pat_category;
+    public $adm_type;
     public $created;
     public $cancel_status;
     public $refer_status;
@@ -57,6 +58,11 @@ class ReferAdmission extends DatabaseObject {
 
     public static function find_by_patient($patient_id){
         $result_array =  static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE patient_id = $patient_id" );
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
+    }
+
+    public static function find_by_patient_discharge_doct($patient_id){
+        $result_array =  static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE patient_id = $patient_id AND discharge_doct = 1 AND discharge_nurse = 0" );
         return !empty($result_array) ? array_shift($result_array) : FALSE;
     }
 	
@@ -451,6 +457,7 @@ class ReferAdmission extends DatabaseObject {
             'remark text NOT NULL, ' .
             'remark_nurse text NOT NULL, ' .
             'pat_category VARCHAR(100) NOT NULL, ' .
+            'adm_type VARCHAR(100) NOT NULL, ' .
             'discharge_date DATE NOT NULL, ' .
             'created DATETIME NOT NULL, ' .
             'PRIMARY KEY(id))';

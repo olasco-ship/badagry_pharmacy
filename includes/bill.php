@@ -51,12 +51,22 @@ class Bill extends DatabaseObject {
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE revenues = 'Folder' AND dept = 'Records' AND status = 'PAID' ORDER BY date DESC " );
     }
 
+    public static function find_by_paid($query){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name .
+            " WHERE bill_number LIKE '%$query%' AND revenues = 'Folder' AND dept = 'Records' AND status = 'PAID' ORDER BY date DESC ");
+    }
+
     public static function find_waiting_ref_registration(){
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE revenues = 'Ref-Folder' AND dept = 'Records' AND status = 'PAID' ORDER BY date DESC " );
     }
 
     public static function find_waiting_consultation(){
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE revenues = 'Consultation' AND dept = 'Records' AND status = 'PAID' ORDER BY date DESC " );
+    }
+
+    public static function find_by_consult($query){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name .
+            " WHERE bill_number LIKE '%$query%' AND revenues = 'Consultation' AND dept = 'Records' AND status = 'PAID' ORDER BY date DESC ");
     }
 
     public static function find_by_auth_code($id=0){
@@ -68,6 +78,11 @@ class Bill extends DatabaseObject {
         $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE receipt= '$id' AND status != 'CLEARED' ");
         return !empty($result_array) ? array_shift($result_array) : FALSE;
     }*/
+
+    public static function find_by_patient_medicalRep($patient_id){
+        $result_array = static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE patient_id = $patient_id AND revenues = 'Medical Report' " );
+        return !empty($result_array) ? array_shift($result_array) : FALSE;
+    }
 
     public static function find_by_encounter_id($id=0){
         global $database;

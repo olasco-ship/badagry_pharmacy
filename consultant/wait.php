@@ -180,8 +180,12 @@ require('../layout/header.php');
                                             $start_date = $today . " " . $start_sec;
                                             $end_date   = $today . " " . $end_sec;
 
-//                                            $waitingConsultation = WaitingList::find_all_waiting_consultation($clinic->id);
-                                            $waitingConsultation = WaitingList::find_all_waiting_consultation_by_date($clinic->id, $start_date, $end_date);
+                                            if ($clinic->name != "SURGERY"){
+                                                $waitingConsultation = WaitingList::find_all_waiting_consultation_by_date($clinic->id, $start_date, $end_date);
+                                            }
+                                            else{
+                                                $waitingConsultation = WaitingList::find_all_sopd_waiting_consultation($clinic->id);
+                                            }
                                             foreach($waitingConsultation as $waiting)  {
                                                 $patient = Patient::find_by_id($waiting->patient_id);
                                                 ?>

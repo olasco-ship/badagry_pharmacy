@@ -50,14 +50,14 @@ require('../layout/header.php');
 
                             <a href="storage.php" style="font-size: large">&laquo; Back</a>
                             <div href="#" class="right">
-                                <form class="form-inline" id="basic-form" action="" method="post">
+                                <!--<form class="form-inline" id="basic-form" action="" method="post">
                                     <div class="form-group">
                                         <input type="text"  class="form-control" placeholder=" Search "
                                                name="search" required>
                                         <button type="submit" class="btn btn-outline-primary">Search</button>
                                         <button type="button" name="search" onClick="location.href=location.href"  class="btn btn-outline-warning">Refresh</button>
                                     </div>
-                                </form>
+                                </form>-->
                                 <?php if (is_post()){
                                     $query = trim($_POST['search']);
                                     ?>

@@ -35,6 +35,7 @@ require('../layout/header.php');
             <div class="col-lg-12 col-md-12">
                 <div class="card">
 
+                    <a href="../pham/storage.php" style="..."> >>Back </a>
                     <div class="body">
                         <div class="row clearfix">
 
@@ -58,15 +59,15 @@ require('../layout/header.php');
                                 </a>
                             </div>
 
-                            <div class="col-md-3">
-                                <a href="ord_level.php">
-                                    <div class="body bg-danger text-light">
-                                        <h4><i class="icon-wallet"></i><!-- 14,965$-->
-                                        </h4>
-                                        <span> Re-Order Level Reports </span>
-                                    </div>
-                                </a>
-                            </div>
+<!--                            <div class="col-md-3">-->
+<!--                                <a href="ord_level.php">-->
+<!--                                    <div class="body bg-danger text-light">-->
+<!--                                        <h4><i class="icon-wallet"></i> 14,965$-->
+<!--                                        </h4>-->
+<!--                                        <span> Re-Order Level Reports </span>-->
+<!--                                    </div>-->
+<!--                                </a>-->
+<!--                            </div>-->
 
                             <div class="col-md-3">
                                 <a href="exp_rep.php">
@@ -86,15 +87,15 @@ require('../layout/header.php');
                     <div class="body">
                         <div class="row clearfix">
 
-                            <div class="col-md-3">
+                            <!--<div class="col-md-3">
                                 <a href="stock_rep.php">
                                     <div class="body bg-warning text-light">
-                                        <h4><i class="icon-wallet"></i><!-- 25,965$-->
+                                        <h4><i class="icon-wallet"></i> 25,965$
                                         </h4>
                                         <span> Stock Count Report </span>
                                     </div>
                                 </a>
-                            </div>
+                            </div>-->
 
 
                         </div>

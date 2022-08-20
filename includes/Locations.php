@@ -11,6 +11,11 @@ class Locations extends DatabaseObject
     public $sync;
     public $location_name;
 
+    public static function find_by_name($name){
+
+        return static::find_by_sql("SELECT * FROM " .static::$table_name . " WHERE location_name = '$name' ");
+    }
+
     public static function create_table()
     {
         $sql = 'CREATE TABLE IF NOT EXISTS ' . Locations::$table_name . '(' .

@@ -54,7 +54,7 @@ if (is_post()) {
         $unit = test_input($_POST['unit']);
     }
 
-    $reference = test_input($_POST['reference']);
+//    $reference = test_input($_POST['reference']);
 
 
     if ($_POST['price']) {
@@ -77,7 +77,7 @@ if (is_post()) {
     $test->name           = $name;
     $test->revenueHead_id = $revenueHead_id;
     $test->unit_id        = $unit;
-    $test->reference      = $reference;
+//    $test->reference      = $reference;
     $test->price          = $price;
     //   $test->price          = 1;
     $test->created_by     = "";
@@ -134,12 +134,8 @@ require('../layout/header.php');
 
                                     <div class="body">
                                         <a href="depts.php" style="font-size: large">&laquo; Back</a>
-                                        <ul class="nav nav-tabs-new">
-                                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#Profile-new">Edit Revenue </a></li>
-                                        </ul>
-                                        <div class="tab-content">
 
-                                            <div class="tab-pane" id="Profile-new">
+
                                                 <h6>Edit Revenue </h6>
                                                 <form id="basic-form" action="" method="post">
                                                     <div class="form-group">
@@ -165,10 +161,10 @@ require('../layout/header.php');
                                                     </div>
 
 
-                                                    <div class="form-group">
-                                                        <!--    <label>Selling Price</label>  -->
-                                                        <input type="text" class="form-control" style="width: 350px" name="reference" placeholder="Reference Range" value="<?php echo $test->reference ?>" required>
-                                                    </div>
+                                                    <!--<div class="form-group">
+                                                            <label>Selling Price</label>
+                                                        <input type="text" class="form-control" style="width: 350px" name="reference" placeholder="Reference Range" value="<?php /*echo $test->reference */?>" required>
+                                                    </div>-->
 
                                                     <div class="form-group">
                                                         <!--    <label>Cost Price</label>  -->
@@ -179,9 +175,7 @@ require('../layout/header.php');
                                                     <button type="submit" class="btn btn-primary">Save Revenue
                                                         <!-- Test --></button>
                                                 </form>
-                                            </div>
 
-                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -9,6 +9,7 @@
 <div id="accordion">
     <?php
     $waitingList = WaitingList::find_all_done_by_patient($patient->id);
+    $admissions = "";
     foreach ($waitingList as $waitList) {
         $subClinic = SubClinic::find_by_id($waitList->sub_clinic_id);
     ?>
@@ -17,7 +18,7 @@
             <div class="card-header">
                 <a class="card-link" data-toggle="collapse" href="#collapse<?php echo $waitList->id; ?>">
                     <?php echo datetime_to_text($waitList->date)  ?>
-                </a> <span style="float:right"> Clinic: <?php echo $subClinic->name ?> </span>
+                </a> <span style="float:right"> Treatment From: <?php echo $subClinic->name ?> </span>
             </div>
             <div id="collapse<?php echo $waitList->id; ?>" class="collapse" data-parent="#accordion">
                 <div class="card-body">

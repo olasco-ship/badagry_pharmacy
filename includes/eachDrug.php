@@ -69,6 +69,10 @@ class EachDrug extends DatabaseObject
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE drug_request_id = $drug_request_id " );
     }
 
+    public static function find_all_requests_by_product($drug_request_id=0, $product){
+        return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE drug_request_id = $drug_request_id AND product_name = '$product' " );
+    }
+
     public static function find_by_encounter_id($encounter=0){
         return static::find_by_sql("SELECT * FROM " .static::$table_name. " WHERE encounter_id = $encounter" );
     }
